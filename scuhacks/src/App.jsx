@@ -2,12 +2,13 @@ import { Canvas, useFrame } from '@react-three/fiber'
 import { OrbitControls, Grid } from '@react-three/drei'
 import { useEffect, useRef, useState } from 'react'
 import * as THREE from 'three'
-import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, Link } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Garden from './pages/Garden';
 import Plants from './pages/Plants';
 import Upload from './pages/Upload';
 import SignIn from './pages/SignIn';
+import SignUp from './pages/SignUp';
 
 // Mock data for statistics (replace with real data later)
 const plantStats = {
@@ -270,9 +271,9 @@ function Login({ onGuestLogin }) {
         <div className="text-center">
           <p className="text-sm text-gray-400">
             Don't have an account?{' '}
-            <a href="#" className="font-medium text-green-600 hover:text-green-500">
+            <Link to="/signup" className="font-medium text-green-600 hover:text-green-500">
               Sign up
-            </a>
+            </Link>
           </p>
         </div>
       </div>
@@ -298,6 +299,7 @@ function App() {
           <Route path="/plants" element={<Plants />} />
           <Route path="/upload" element={<Upload />} />
           <Route path="/account" element={<div>Account Settings</div>} />
+          <Route path="/signup" element={<SignUp />} />
         </Routes>
       </div>
     </Router>
