@@ -2,8 +2,7 @@ import mongoose from "mongoose";
 import dotenv from 'dotenv';
 dotenv.config(); 
 
-const uri = "";
-
+const uri = process.env.MONGODB_URI;
 
 if (!uri) {
   throw new Error('Missing API Key: "MONGODB_URI"');
