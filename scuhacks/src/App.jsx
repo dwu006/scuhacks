@@ -2,6 +2,12 @@ import { Canvas, useFrame } from '@react-three/fiber'
 import { OrbitControls, Grid } from '@react-three/drei'
 import { useEffect, useRef, useState } from 'react'
 import * as THREE from 'three'
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import Navbar from './components/Navbar';
+import Garden from './pages/Garden';
+import Plants from './pages/Plants';
+import Upload from './pages/Upload';
+import SignIn from './pages/SignIn';
 
 // Mock data for statistics (replace with real data later)
 const plantStats = {
@@ -188,42 +194,114 @@ function StatisticsSidebar() {
   )
 }
 
-function App() {
+function Login({ onGuestLogin }) {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isGuest, setIsGuest] = useState(false);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Add login logic here
+    console.log('Login attempt with:', email, password);
+  };
+
+  const handleGuestLogin = () => {
+    setIsGuest(true);
+    onGuestLogin(true);
+  };
+
+  if (isGuest) {
+    return <Navigate to="/garden" />;
+  }
+
   return (
-    <div className="relative w-full h-screen bg-black text-white overflow-hidden">
-      <StatisticsSidebar />
-      <header className="absolute top-0 left-0 right-0 z-10 p-4">
-        <nav className="flex justify-between items-center max-w-6xl mx-auto mr-72">
-          <div className="flex items-center">
-            <div className="w-20 h-20">
-              <Canvas camera={{ position: [0, 0, 5] }}>
-                <ambientLight intensity={0.5} />
-                <pointLight position={[10, 10, 10]} />
-                <SpinningLogo />
-              </Canvas>
+    <div className="min-h-screen bg-black flex items-center justify-center px-4">
+      <div className="max-w-md w-full space-y-8">
+        <div className="text-center">
+          <h2 className="mt-6 text-3xl font-bold text-white">Welcome to Virtual Plant</h2>
+          <p className="mt-2 text-sm text-gray-400">Track and manage your garden with AI</p>
+        </div>
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+          <div className="rounded-md shadow-sm space-y-4">
+            <div>
+              <label htmlFor="email" className="sr-only">Email address</label>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                required
+                className="appearance-none relative block w-full px-3 py-2 border border-gray-700 bg-gray-900 text-white placeholder-gray-400 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm"
+                placeholder="Email address"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
             </div>
-            <span className="text-2xl font-bold">Virtual Plant</span>
+            <div>
+              <label htmlFor="password" className="sr-only">Password</label>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                required
+                className="appearance-none relative block w-full px-3 py-2 border border-gray-700 bg-gray-900 text-white placeholder-gray-400 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </div>
           </div>
-          <ul className="flex space-x-6">
-            <li><a href="#" className="hover:text-gray-300">Garden</a></li>
-            <li><a href="#" className="hover:text-gray-300">Plants</a></li>
-          </ul>
-        </nav>
-      </header>
-      <div className="absolute top-1/4 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center z-10 mr-32">
-        <h1 className="text-6xl font-bold mb-8 max-w-4xl mx-auto">Plant a Plant!</h1>
-        <h2 className="text-xl mb-10">Take a picture of your plant and get started</h2>
-        <button className="bg-white text-black font-bold py-3 px-6 rounded-md hover:bg-gray-200 transition duration-300">
-          Upload a picture
-        </button>
-      </div>
-      <div className="absolute inset-0">
-        <Canvas camera={{ position: [0, 15, 35] }}>
-          <Scene />
-        </Canvas>
+
+          <div className="space-y-3">
+            <button
+              type="submit"
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+            >
+              Sign in
+            </button>
+            <button
+              type="button"
+              onClick={handleGuestLogin}
+              className="group relative w-full flex justify-center py-2 px-4 border border-green-600 text-sm font-medium rounded-md text-green-600 hover:bg-green-600 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors"
+            >
+              Continue as Guest
+            </button>
+          </div>
+        </form>
+        <div className="text-center">
+          <p className="text-sm text-gray-400">
+            Don't have an account?{' '}
+            <a href="#" className="font-medium text-green-600 hover:text-green-500">
+              Sign up
+            </a>
+          </p>
+        </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default App
+function NavbarWrapper() {
+  const location = useLocation();
+  return location.pathname !== '/' ? <Navbar /> : null;
+}
+
+function App() {
+  const [isGuest, setIsGuest] = useState(false);
+
+  return (
+    <Router>
+      <div className="min-h-screen bg-black text-white">
+        <NavbarWrapper />
+        <Routes>
+          <Route path="/" element={<Login onGuestLogin={setIsGuest} />} />
+          <Route path="/garden" element={<Garden />} />
+          <Route path="/plants" element={<Plants />} />
+          <Route path="/upload" element={<Upload />} />
+          <Route path="/account" element={<div>Account Settings</div>} />
+        </Routes>
+      </div>
+    </Router>
+  );
+}
+
+export default App;
