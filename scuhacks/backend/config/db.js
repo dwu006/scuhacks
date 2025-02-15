@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import dotenv from 'dotenv';
 dotenv.config(); 
 
-const uri = process.env.MONGODB_URI;
+const uri = "mongodb+srv://dwu28:scuhacks@cluster0.7tvgx.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
 
 if (!uri) {
   throw new Error('Missing API Key: "MONGODB_URI"');
