@@ -14,7 +14,7 @@ export async function uploadImageAndAnalyze(imageBuffer) {
     const base64Data = bufferToBase64(imageBuffer);
 
     // Initialize Gemini AI
-    const genAI = new GoogleGenerativeAI('AIzaSyCBrnoCwgV-JVpl0QAsyLuMxLClnHAxe6w')
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_KEY)
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     // Prepare the prompt for structured output
