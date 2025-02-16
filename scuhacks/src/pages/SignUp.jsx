@@ -54,21 +54,21 @@ function SignUp() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white flex items-center justify-center px-4">
+    <div className="min-h-screen bg-[#f5f1ec] text-[#2d2417] flex items-center justify-center px-4">
       <motion.div
-        className="max-w-md w-full space-y-8 p-8 bg-gray-900/50 rounded-xl backdrop-blur-sm"
+        className="max-w-md w-full space-y-8 p-8 bg-white rounded-xl shadow-lg"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
         <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold">Create your account</h2>
-          <p className="mt-2 text-center text-sm text-gray-400">
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-[#5c4934]">Create your account</h2>
+          <p className="mt-2 text-center text-sm text-[#8c7355]">
             Join Virtual Plant and start tracking your garden
           </p>
         </div>
 
-        {error && <p className="text-red-500 text-center">{error}</p>}
+        {error && <p className="text-[#a65d57] text-center">{error}</p>}
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="rounded-md shadow-sm space-y-4">
@@ -78,7 +78,7 @@ function SignUp() {
                 name="name"
                 type="text"
                 required
-                className="appearance-none relative block w-full px-3 py-2 border border-gray-700 bg-gray-800 text-white placeholder-gray-400 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm"
+                className="appearance-none relative block w-full px-3 py-2 border border-[#d3c5b4] bg-white text-[#2d2417] placeholder-[#8c7355] rounded-md focus:outline-none focus:ring-[#7fa37f] focus:border-[#7fa37f] focus:z-10 sm:text-sm"
                 placeholder="Full Name"
                 value={formData.name}
                 onChange={handleChange}
@@ -90,7 +90,7 @@ function SignUp() {
                 name="email"
                 type="email"
                 required
-                className="appearance-none relative block w-full px-3 py-2 border border-gray-700 bg-gray-800 text-white placeholder-gray-400 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm"
+                className="appearance-none relative block w-full px-3 py-2 border border-[#d3c5b4] bg-white text-[#2d2417] placeholder-[#8c7355] rounded-md focus:outline-none focus:ring-[#7fa37f] focus:border-[#7fa37f] focus:z-10 sm:text-sm"
                 placeholder="Email address"
                 value={formData.email}
                 onChange={handleChange}
@@ -102,7 +102,7 @@ function SignUp() {
                 name="password"
                 type="password"
                 required
-                className="appearance-none relative block w-full px-3 py-2 border border-gray-700 bg-gray-800 text-white placeholder-gray-400 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm"
+                className="appearance-none relative block w-full px-3 py-2 border border-[#d3c5b4] bg-white text-[#2d2417] placeholder-[#8c7355] rounded-md focus:outline-none focus:ring-[#7fa37f] focus:border-[#7fa37f] focus:z-10 sm:text-sm"
                 placeholder="Password"
                 value={formData.password}
                 onChange={handleChange}
@@ -114,7 +114,7 @@ function SignUp() {
                 name="confirmPassword"
                 type="password"
                 required
-                className="appearance-none relative block w-full px-3 py-2 border border-gray-700 bg-gray-800 text-white placeholder-gray-400 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm"
+                className="appearance-none relative block w-full px-3 py-2 border border-[#d3c5b4] bg-white text-[#2d2417] placeholder-[#8c7355] rounded-md focus:outline-none focus:ring-[#7fa37f] focus:border-[#7fa37f] focus:z-10 sm:text-sm"
                 placeholder="Confirm Password"
                 value={formData.confirmPassword}
                 onChange={handleChange}
@@ -122,21 +122,19 @@ function SignUp() {
             </div>
           </div>
 
-          <div>
-            <button
-              type="submit"
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-            >
-              Create Account
-            </button>
-          </div>
+          <button
+            type="submit"
+            className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-[#7fa37f] hover:bg-[#4c724c] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#7fa37f]"
+          >
+            Create Account
+          </button>
         </form>
 
-        <div className="text-center">
-          <p className="text-sm text-gray-400">
+        <div className="mt-6 text-center">
+          <p className="text-[#8c7355]">
             Already have an account?{" "}
-            <Link to="/signin" className="font-medium text-green-600 hover:text-green-500">
-              Sign in
+            <Link to="/signin" className="text-[#7fa37f] hover:text-[#4c724c] font-medium">
+              Sign in here
             </Link>
           </p>
         </div>

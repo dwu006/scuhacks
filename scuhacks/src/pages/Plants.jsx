@@ -25,7 +25,7 @@ function PlantModel({ color }) {
 function PlantCard({ plant }) {
   return (
     <motion.div
-      className="bg-gray-900 rounded-xl overflow-hidden"
+      className="bg-white rounded-xl overflow-hidden shadow-lg border border-[#d3c5b4]"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
@@ -37,16 +37,16 @@ function PlantCard({ plant }) {
         </Canvas>
       </div>
       <div className="p-6">
-        <h3 className="text-xl font-bold mb-2">{plant.name}</h3>
-        <p className="text-gray-400 text-sm mb-4">{plant.description}</p>
+        <h3 className="text-xl font-bold mb-2 text-[#5c4934]">{plant.name}</h3>
+        <p className="text-[#8c7355] text-sm mb-4">{plant.description}</p>
         <div className="grid grid-cols-2 gap-4">
-          <div className="bg-gray-800 p-3 rounded-lg">
-            <p className="text-sm text-gray-400">Count</p>
-            <p className="text-xl font-bold">{plant.count}</p>
+          <div className="bg-[#f5f1ec] p-3 rounded-lg">
+            <p className="text-sm text-[#8c7355]">Count</p>
+            <p className="text-xl font-bold text-[#5c4934]">{plant.count}</p>
           </div>
-          <div className="bg-gray-800 p-3 rounded-lg">
-            <p className="text-sm text-gray-400">CO₂ Offset</p>
-            <p className="text-xl font-bold">{plant.co2Offset}kg</p>
+          <div className="bg-[#f5f1ec] p-3 rounded-lg">
+            <p className="text-sm text-[#8c7355]">CO₂ Offset</p>
+            <p className="text-xl font-bold text-[#5c4934]">{plant.co2Offset}kg</p>
           </div>
         </div>
       </div>
@@ -91,7 +91,7 @@ const plantData = [
 
 function Plants() {
   return (
-    <div className="min-h-screen bg-black text-white p-8">
+    <div className="min-h-screen bg-[#f5f1ec] text-[#2d2417] p-8">
       <div className="max-w-7xl mx-auto">
         <motion.div
           className="text-center mb-12"
@@ -99,22 +99,15 @@ function Plants() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <h1 className="text-4xl font-bold mb-4">Your Plant Collection</h1>
-          <p className="text-gray-400 max-w-2xl mx-auto">
-            Track and manage your plants' growth and environmental impact. Each plant contributes to reducing CO₂ emissions and improving air quality.
+          <h1 className="text-4xl font-bold mb-4 text-[#5c4934]">Your Plant Collection</h1>
+          <p className="text-xl text-[#8c7355]">
+            Track and monitor all your plants in one place
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {plantData.map((plant, index) => (
-            <motion.div
-              key={plant.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-            >
-              <PlantCard plant={plant} />
-            </motion.div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {plantData.map((plant) => (
+            <PlantCard key={plant.id} plant={plant} />
           ))}
         </div>
       </div>
