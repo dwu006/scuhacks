@@ -1,18 +1,15 @@
 import { Link } from 'react-router-dom';
-import { Canvas } from '@react-three/fiber';
-import { SpinningLogo } from './SpinningLogo';
+import logo from '../assets/PlantPortalLogo.png';
 
 function Navbar() {
   return (
     <nav className="flex justify-between items-center max-w-6xl mx-auto mr-72 py-4 px-6 bg-white/80 backdrop-blur-sm">
       <Link to="/" className="flex items-center">
-        <div className="w-20 h-20">
-          <Canvas camera={{ position: [0, 0, 5] }}>
-            <ambientLight intensity={0.5} />
-            <pointLight position={[10, 10, 10]} />
-            <SpinningLogo />
-          </Canvas>
-        </div>
+        <img 
+          src={logo} 
+          alt="Plant Portal Logo" 
+          className="w-20 h-20 object-contain"
+        />
         <span className="text-2xl font-bold text-[#5c4934]">Virtual Plant</span>
       </Link>
       <div className="flex items-center space-x-6">
