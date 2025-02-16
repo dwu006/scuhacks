@@ -99,9 +99,17 @@ export function StatisticsSidebar() {
 
   return (
     <motion.div
-      className="fixed right-0 top-0 bottom-0 my-auto h-fit w-64 bg-white/90 text-[#2d2417] rounded-l-lg shadow-lg backdrop-blur-sm border-l border-[#d3c5b4] z-50"
+      className="fixed right-0 top-[88px] bottom-0 my-auto h-fit 
+        w-56 sm:w-60 md:w-64 lg:w-72 
+        bg-[#f2e8dc] text-[#2d2417] rounded-l-lg shadow-lg 
+        backdrop-blur-sm border-l border-[#d3c5b4] z-50"
       drag="x"
-      dragConstraints={{ left: 0, right: 250 }}
+      dragConstraints={{ 
+        left: 0, 
+        right: window.innerWidth <= 640 ? 220 : 
+              window.innerWidth <= 768 ? 240 : 
+              window.innerWidth <= 1024 ? 260 : 280 
+      }}
       dragElastic={0.2}
       dragMomentum={true}
       animate={controls}
@@ -112,10 +120,12 @@ export function StatisticsSidebar() {
       {/* Handle for dragging */}
       <div className="absolute left-2 top-1/2 transform -translate-y-1/2 h-16 w-1 rounded-full bg-[#d3c5b4]/50" />
 
-      <div className="p-6 space-y-8">
+      <div className="p-4 sm:p-5 md:p-6 space-y-6 sm:space-y-7 md:space-y-8">
         {/* Total Statistics */}
         <div>
-          <h3 className="text-lg font-semibold mb-4 border-b border-[#d3c5b4] pb-2 text-[#5c4934]">Garden Statistics</h3>
+          <h3 className="text-lg sm:text-xl font-semibold mb-4 border-b border-[#d3c5b4] pb-2 text-[#5c4934]">
+            Garden Statistics
+          </h3>
           <div className="space-y-4">
             <div>
               <p className="text-[#8c7355]">Total Plants</p>
