@@ -5,24 +5,53 @@ import { FiUser, FiMail, FiLock } from 'react-icons/fi';
 
 function SignUp() {
   const [formData, setFormData] = useState({
-    username: '',
+    name: '',
     email: '',
     password: '',
     confirmPassword: ''
   });
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // TODO: Add sign up logic
-    navigate('/garden');
-  };
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (formData.password !== formData.confirmPassword) {
+      setError("Passwords do not match!");
+      return;
+    }
+
+    try {
+      const response = await fetch("http://localhost:3000/api/users/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        localStorage.setItem("token", data.token);
+        navigate("/garden");
+      } else {
+        setError(data.message || "Failed to create account.");
+      }
+    } catch (error) {
+      setError("Something went wrong. Please try again.");
+    }
   };
 
   return (
@@ -41,24 +70,31 @@ function SignUp() {
             Start your gardening journey today
           </p>
         </div>
+
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl">
+            {error}
+          </div>
+        )}
+
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-4">
             <div>
-              <label htmlFor="username" className="sr-only">
-                Username
+              <label htmlFor="name" className="sr-only">
+                Full Name
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <FiUser className="h-5 w-5 text-[#7fa37f]" />
                 </div>
                 <input
-                  id="username"
-                  name="username"
+                  id="name"
+                  name="name"
                   type="text"
                   required
                   className="appearance-none relative block w-full px-3 py-3 pl-10 bg-[#f7f3eb] border border-[#e6dfd3] placeholder-[#8c7355] text-[#5c4934] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#7fa37f] focus:border-transparent"
-                  placeholder="Username"
-                  value={formData.username}
+                  placeholder="Full Name"
+                  value={formData.name}
                   onChange={handleChange}
                 />
               </div>
@@ -128,9 +164,9 @@ function SignUp() {
           <div>
             <button
               type="submit"
-              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-xl text-white bg-[#7fa37f] hover:bg-[#4c724c] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#7fa37f] transition-colors duration-200"
+              className="w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-xl text-white bg-[#7fa37f] hover:bg-[#4c724c] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#7fa37f] transition-colors duration-200"
             >
-              Sign up
+              Create Account
             </button>
           </div>
 

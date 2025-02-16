@@ -22,6 +22,7 @@ function Navbar() {
             <div className="hidden md:flex space-x-6">
               <Link to="/garden" className="text-[#8c7355] hover:text-[#5c4934] transition-colors">Garden</Link>
               <Link to="/plants" className="text-[#8c7355] hover:text-[#5c4934] transition-colors">Plants</Link>
+              <Link to="/education" className="text-[#8c7355] hover:text-[#5c4934] transition-colors">Education</Link>
               <Link to="/upload" className="text-[#8c7355] hover:text-[#5c4934] transition-colors">Upload Picture</Link>
             </div>
             
