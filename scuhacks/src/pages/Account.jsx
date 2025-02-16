@@ -148,7 +148,7 @@ function Account() {
 
             <button
               onClick={handleLogout}
-              className="w-full mt-4 px-4 py-2 bg-[#ffb6c1] text-[#d87c85] font-medium rounded-md hover:bg-[#ffc1c8] transition-colors"
+              className="w-full mt-4 px-4 py-2 bg-[#ffb6c1] text-[#b44c54] font-medium rounded-md hover:bg-[#ffc1c8] transition-colors"
             >
               Sign Out
             </button>
