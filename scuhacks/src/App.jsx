@@ -9,6 +9,7 @@ import Plants from './pages/Plants';
 import Upload from './pages/Upload';
 import SignIn from './pages/SignIn';
 import SignUp from './pages/SignUp';
+import Account from './pages/Account.jsx';
 
 // Mock data for statistics (replace with real data later)
 const plantStats = {
@@ -298,7 +299,7 @@ function App() {
           <Route path="/garden" element={<Garden />} />
           <Route path="/plants" element={<Plants />} />
           <Route path="/upload" element={<Upload />} />
-          <Route path="/account" element={<div>Account Settings</div>} />
+          <Route path="/account" element={<Account />} />
           <Route path="/signup" element={<SignUp />} />
         </Routes>
       </div>
