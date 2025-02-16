@@ -20,9 +20,13 @@ function Plant({ position, modelPath, scale = 1, rotation = 0 }) {
 // Ground tile component with instancing for better performance
 function Ground() {
   const { scene } = useGLTF('/src/assets/dirt/ground.glb');
+<<<<<<< Updated upstream
   const tileSize = 1.5; // Halved tile size
   const gridSize = 50; // Reduced from 100 to 50
   const offset = (gridSize * tileSize) / 2;
+=======
+  const tileSize = 2;
+>>>>>>> Stashed changes
 
   // Create instances data
   const instances = useMemo(() => {
@@ -63,10 +67,21 @@ export function Scene() {
   const sceneRef = useRef();
   const controlsRef = useRef();
 
+<<<<<<< Updated upstream
   // Slow down the rotation
   useFrame((state, delta) => {
     if (sceneRef.current) {
       sceneRef.current.rotation.y += delta * 0.05; // Reduced from 0.1 to 0.05
+=======
+  // Initialize garden state
+  const { plants, addPlants, removePlants, currentGridSize, getTotalFlowers } = useGardenState();
+
+  // Rotate the entire scene
+  useFrame((state) => {
+    if (sceneRef.current) {
+      const time = state.clock.getElapsedTime();
+      sceneRef.current.rotation.y = time * rotationSpeed; // Continuous rotation
+>>>>>>> Stashed changes
     }
   });
 
