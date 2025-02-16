@@ -1,10 +1,8 @@
-import { useRef, useLoader } from 'react';
+import { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
-import * as THREE from 'three';
 
 export function SpinningLogo() {
   const groupRef = useRef(null);
-  const texture = useLoader(THREE.TextureLoader, '/src/assets/PlantPortalLogo.png');
 
   useFrame((state, delta) => {
     if (groupRef.current) {
@@ -14,9 +12,17 @@ export function SpinningLogo() {
 
   return (
     <group ref={groupRef}>
-      <mesh>
-        <circleGeometry args={[1, 32]} />
-        <meshStandardMaterial map={texture} transparent />
+      <mesh position={[0, 0, 0]}>
+        <boxGeometry args={[1, 1, 1]} />
+        <meshStandardMaterial color="#ffffff" />
+      </mesh>
+      <mesh position={[0.5, 0.5, 0.5]}>
+        <boxGeometry args={[0.5, 0.5, 0.5]} />
+        <meshStandardMaterial color="#cccccc" />
+      </mesh>
+      <mesh position={[-0.5, -0.5, -0.5]}>
+        <boxGeometry args={[0.5, 0.5, 0.5]} />
+        <meshStandardMaterial color="#999999" />
       </mesh>
     </group>
   );
