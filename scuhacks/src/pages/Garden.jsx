@@ -2,7 +2,7 @@ import { Canvas } from '@react-three/fiber';
 import { motion } from 'framer-motion';
 import { FiUpload } from 'react-icons/fi';
 import { StatisticsSidebar } from '../components/StatisticsSidebar';
-import { Scene } from '../components/Scene';
+import Scene from '../components/Scene';
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
 

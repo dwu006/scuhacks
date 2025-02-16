@@ -7,14 +7,14 @@ const plantStats = {
   totalPlants: 15,
   totalCO2Offset: 5678,
   topPlants: [
-    { name: "Snake Plant", count: 156 },
-    { name: "Spider Plant", count: 143 },
-    { name: "Peace Lily", count: 128 }
+    { name: "Plant 1", count: 7 },
+    { name: "Plant 2", count: 4 },
+    { name: "Plant 3", count: 2 }
   ],
   topCO2Plants: [
-    { name: "Bamboo Palm", offset: 1200 },
-    { name: "Dragon Tree", offset: 1100 },
-    { name: "Weeping Fig", offset: 950 }
+    { name: "Plant 4", offset: 1200 },
+    { name: "Plant 5", offset: 1100 },
+    { name: "Plant 6", offset: 950 }
   ]
 };
 
@@ -104,11 +104,11 @@ export function StatisticsSidebar() {
         bg-[#f2e8dc] text-[#2d2417] rounded-l-lg shadow-lg 
         backdrop-blur-sm border-l border-[#d3c5b4] z-50"
       drag="x"
-      dragConstraints={{ 
-        left: 0, 
-        right: window.innerWidth <= 640 ? 220 : 
-              window.innerWidth <= 768 ? 240 : 
-              window.innerWidth <= 1024 ? 260 : 280 
+      dragConstraints={{
+        left: 0,
+        right: window.innerWidth <= 640 ? 220 :
+          window.innerWidth <= 768 ? 240 :
+            window.innerWidth <= 1024 ? 260 : 280
       }}
       dragElastic={0.2}
       dragMomentum={true}
