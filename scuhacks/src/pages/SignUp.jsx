@@ -1,37 +1,61 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 
 function SignUp() {
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: '',
-    confirmPassword: ''
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
   });
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (formData.password !== formData.confirmPassword) {
-      alert('Passwords do not match!');
+      setError("Passwords do not match!");
       return;
     }
-    // TODO: Add signup logic here
-    console.log('Sign up data:', formData);
-    navigate('/garden');
+
+    try {
+      const response = await fetch("http://localhost:3000/api/users/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        localStorage.setItem("token", data.token); // Store JWT token
+        navigate("/garden"); // Redirect after successful signup
+      } else {
+        setError(data.message || "Failed to create account.");
+      }
+    } catch (error) {
+      setError("Something went wrong. Please try again.");
+    }
   };
 
   return (
     <div className="min-h-screen bg-black text-white flex items-center justify-center px-4">
-      <motion.div 
+      <motion.div
         className="max-w-md w-full space-y-8 p-8 bg-gray-900/50 rounded-xl backdrop-blur-sm"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -43,10 +67,12 @@ function SignUp() {
             Join Virtual Plant and start tracking your garden
           </p>
         </div>
+
+        {error && <p className="text-red-500 text-center">{error}</p>}
+
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="rounded-md shadow-sm space-y-4">
             <div>
-              <label htmlFor="name" className="sr-only">Full Name</label>
               <input
                 id="name"
                 name="name"
@@ -59,7 +85,6 @@ function SignUp() {
               />
             </div>
             <div>
-              <label htmlFor="email" className="sr-only">Email address</label>
               <input
                 id="email"
                 name="email"
@@ -72,7 +97,6 @@ function SignUp() {
               />
             </div>
             <div>
-              <label htmlFor="password" className="sr-only">Password</label>
               <input
                 id="password"
                 name="password"
@@ -85,7 +109,6 @@ function SignUp() {
               />
             </div>
             <div>
-              <label htmlFor="confirmPassword" className="sr-only">Confirm Password</label>
               <input
                 id="confirmPassword"
                 name="confirmPassword"
@@ -108,10 +131,11 @@ function SignUp() {
             </button>
           </div>
         </form>
+
         <div className="text-center">
           <p className="text-sm text-gray-400">
-            Already have an account?{' '}
-            <Link to="/" className="font-medium text-green-600 hover:text-green-500">
+            Already have an account?{" "}
+            <Link to="/signin" className="font-medium text-green-600 hover:text-green-500">
               Sign in
             </Link>
           </p>

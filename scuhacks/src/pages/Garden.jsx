@@ -12,8 +12,8 @@ function Garden() {
       <div className="absolute top-1/4 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center z-10 mr-32">
         <h1 className="text-6xl font-bold mb-8 max-w-4xl mx-auto">Plant a Plant!</h1>
         <h2 className="text-xl mb-10">Take a picture of your plant and get started</h2>
-        <button 
-          onClick={() => navigate('/upload')} 
+        <button
+          onClick={() => navigate('/upload')}
           className="bg-white text-black font-bold py-3 px-6 rounded-md hover:bg-gray-200 transition duration-300"
         >
           Upload a picture
