@@ -1,5 +1,5 @@
-import { useRef, useEffect } from 'react';
-import { Grid, OrbitControls, useGLTF, PerspectiveCamera } from '@react-three/drei';
+import { useRef, useEffect, useMemo } from 'react';
+import { OrbitControls, useGLTF } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 
@@ -17,6 +17,48 @@ function Plant({ position, modelPath, scale = 1, rotation = 0 }) {
   );
 }
 
+// Ground tile component with instancing for better performance
+function Ground() {
+  const { scene } = useGLTF('/src/assets/dirt/Fertile soil.glb');
+  const tileSize = 1.5; // Halved tile size
+  const gridSize = 40; // Doubled grid size for more tiles
+  const offset = (gridSize * tileSize) / 2;
+
+  // Create instances data
+  const instances = useMemo(() => {
+    const temp = [];
+    for (let x = 0; x < gridSize; x++) {
+      for (let z = 0; z < gridSize; z++) {
+        // Random rotation in 90-degree increments (0, 90, 180, or 270 degrees)
+        const rotationIndex = Math.floor(Math.random() * 4);
+        const rotation = (rotationIndex * Math.PI) / 2;
+
+        temp.push({
+          position: [
+            x * tileSize - offset,
+            0,
+            z * tileSize - offset
+          ],
+          rotation: [0, rotation, 0],
+          scale: 1.5 // Halved scale to match new tile size
+        });
+      }
+    }
+    return temp;
+  }, []);
+
+  // Clone the soil model for each instance
+  return instances.map((instance, index) => (
+    <primitive
+      key={`soil-${index}`}
+      object={scene.clone()}
+      position={instance.position}
+      rotation={instance.rotation}
+      scale={instance.scale}
+    />
+  ));
+}
+
 export function Scene() {
   const sceneRef = useRef();
   const controlsRef = useRef();
@@ -24,15 +66,15 @@ export function Scene() {
   // Rotate scene
   useFrame((state, delta) => {
     if (sceneRef.current) {
-      sceneRef.current.rotation.y += delta * 0.1; // Adjust speed by changing multiplier
+      sceneRef.current.rotation.y += delta * 0.1;
     }
   });
 
   // Set initial camera position
   useEffect(() => {
     if (controlsRef.current) {
-      controlsRef.current.object.position.set(15, 15, 15);
-      controlsRef.current.target.set(0, 0, 0);
+      controlsRef.current.object.position.set(20, 8, 20);
+      controlsRef.current.target.set(0, 2, 0); // Look at a point slightly above ground
       controlsRef.current.update();
     }
   }, []);
@@ -82,7 +124,7 @@ export function Scene() {
   ];
 
   // Calculate positions in a circle
-  const radius = 8;
+  const radius = 16; // Increased radius to match new ground scale
   const plants = plantModels.map((model, index) => {
     const angle = (index / plantModels.length) * Math.PI * 2;
     const x = Math.cos(angle) * radius;
@@ -97,18 +139,19 @@ export function Scene() {
 
   // Preload all models
   plantModels.forEach(model => useGLTF.preload(model.path));
+  useGLTF.preload('/src/assets/dirt/Fertile soil.glb');
 
   return (
     <>
       <OrbitControls
         ref={controlsRef}
-        minPolarAngle={0}
-        maxPolarAngle={Math.PI / 2.1} // Exactly half PI to prevent looking below horizon
+        minPolarAngle={Math.PI / 6} // Minimum 30 degrees from horizontal
+        maxPolarAngle={Math.PI / 2.1}
         enableZoom={true}
         enablePan={true}
-        minDistance={5}
+        minDistance={15}
         maxDistance={50}
-        maxAzimuthAngle={Infinity} // Allow full rotation around Y axis
+        maxAzimuthAngle={Infinity}
         minAzimuthAngle={-Infinity}
       />
 
@@ -120,18 +163,8 @@ export function Scene() {
         <directionalLight position={[-5, 5, -5]} intensity={0.5} />
         <hemisphereLight intensity={0.3} />
 
-        {/* Ground grid */}
-        <Grid
-          renderOrder={-1}
-          position={[0, 0, 0]}
-          infiniteGrid
-          cellSize={1}
-          cellThickness={0.5}
-          sectionSize={3}
-          sectionThickness={1}
-          sectionColor={[0.5, 0.5, 0.5]}
-          fadeDistance={50}
-        />
+        {/* Ground */}
+        <Ground />
 
         {/* Plants */}
         {plants.map((plant, index) => (
@@ -157,5 +190,6 @@ useGLTF.preload([
   '/src/assets/plants/Pastel Plume Flowers.glb',
   '/src/assets/plants/Pine Tree.glb',
   '/src/assets/plants/Tree-2.glb',
-  '/src/assets/plants/tulip 3.glb'
+  '/src/assets/plants/tulip 3.glb',
+  '/src/assets/dirt/Fertile soil.glb'
 ]);
