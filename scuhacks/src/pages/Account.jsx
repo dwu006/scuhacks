@@ -1,45 +1,104 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 function Account() {
   const [userData, setUserData] = useState({
-    name: 'John Doe',
-    email: 'john.doe@example.com',
-    joinDate: 'February 2024',
-    totalPlants: 4,
-    totalCO2Offset: '2.0kg'
+    name: '',
+    email: '',
+    joinDate: '',
+    totalPlants: 0,
+    totalCO2Offset: '0kg'
   });
 
   const [isEditing, setIsEditing] = useState(false);
-
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  const handleSave = () => {
-    setIsEditing(false);
-    // Add save logic here
+  useEffect(() => {
+    fetchUserData();
+  }, []);
+
+  const fetchUserData = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        navigate('/login');
+        return;
+      }
+
+      const response = await axios.get('http://localhost:3000/api/users/profile', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      const { name, email, createdAt, garden } = response.data;
+      const totalCO2 = garden.reduce((total, plant) => total + (plant.co2Reduced || 0), 0);
+
+      // Format date as Month Year
+      const date = new Date(createdAt);
+      const formattedDate = date.toLocaleDateString('en-US', { 
+        month: 'long',
+        year: 'numeric'
+      });
+
+      setUserData({
+        name,
+        email,
+        joinDate: formattedDate,
+        totalPlants: garden.length,
+        totalCO2Offset: `${totalCO2.toFixed(1)}g`
+      });
+    } catch (err) {
+      console.error('Error fetching user data:', err);
+      if (err.response?.status === 401) {
+        navigate('/login');
+      }
+    }
+  };
+
+  const handleSave = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.put(
+        'http://localhost:3000/api/users/profile',
+        {
+          name: userData.name,
+          email: userData.email
+        },
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
+      
+      setIsEditing(false);
+      fetchUserData(); // Refresh data
+    } catch (err) {
+      setError(err.response?.data?.message || 'Error updating profile');
+    }
   };
 
   const handleLogout = async () => {
     try {
-      // Call the logout endpoint
-      const response = await fetch('http://localhost:5000/api/users/logout', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+      const token = localStorage.getItem('token');
+      await axios.post(
+        'http://localhost:3000/api/users/logout',
+        {},
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
         }
-      });
-
-      // Clear the authentication token and redirect regardless of response
-      localStorage.removeItem('token');
-      navigate('/signin');
-      
+      );
     } catch (error) {
       console.error('Error during logout:', error);
-      // Still clear token and redirect even if there's an error
+    } finally {
       localStorage.removeItem('token');
-      navigate('/signin');
+      navigate('/');
     }
   };
 
@@ -66,14 +125,19 @@ function Account() {
           >
             <div className="bg-white rounded-xl p-6 space-y-6 shadow-lg border border-[#d3c5b4]">
               <h2 className="text-xl font-semibold mb-4 text-[#5c4934]">Profile Information</h2>
+              {error && (
+                <div className="mb-4 p-3 bg-[#a65d57]/10 border border-[#a65d57] rounded-lg">
+                  <p className="text-[#a65d57]">{error}</p>
+                </div>
+              )}
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm text-[#8c7355] mb-1">Name</label>
                   {isEditing ? (
                     <input
                       type="text"
-                      value={userData.name}
-                      onChange={(e) => setUserData({ ...userData, name: e.target.value })}
+                      value={userData.name || ''}
+                      onChange={(e) => setUserData(prev => ({ ...prev, name: e.target.value }))}
                       className="w-full bg-white border border-[#d3c5b4] rounded-md px-3 py-2 text-[#2d2417] placeholder-[#8c7355] focus:outline-none focus:ring-2 focus:ring-[#7fa37f] focus:border-[#7fa37f]"
                     />
                   ) : (
@@ -85,8 +149,8 @@ function Account() {
                   {isEditing ? (
                     <input
                       type="email"
-                      value={userData.email}
-                      onChange={(e) => setUserData({ ...userData, email: e.target.value })}
+                      value={userData.email || ''}
+                      onChange={(e) => setUserData(prev => ({ ...prev, email: e.target.value }))}
                       className="w-full bg-white border border-[#d3c5b4] rounded-md px-3 py-2 text-[#2d2417] placeholder-[#8c7355] focus:outline-none focus:ring-2 focus:ring-[#7fa37f] focus:border-[#7fa37f]"
                     />
                   ) : (

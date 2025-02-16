@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import axios from 'axios';
+import { FiMinus, FiPlus } from 'react-icons/fi';
 
 function Upload() {
   const [isDragging, setIsDragging] = useState(false);
@@ -8,6 +9,7 @@ function Upload() {
   const [selectedFile, setSelectedFile] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [quantity, setQuantity] = useState(1);
   const fileInputRef = useRef(null);
 
   const handleDrag = (e) => {
@@ -57,6 +59,19 @@ function Upload() {
     }
   };
 
+  const handleQuantityChange = (increment) => {
+    setQuantity(prev => {
+      const newValue = prev + increment;
+      if (newValue <= 0) {
+        // Clear the image selection and reset quantity to 1
+        setSelectedFile(null);
+        setPreview(null);
+        return 1;
+      }
+      return newValue;
+    });
+  };
+
   const handleSubmit = async () => {
     if (!selectedFile) {
       setError('Please select an image first');
@@ -73,11 +88,10 @@ function Upload() {
         return;
       }
 
-      // Create FormData and append the file
+      // First, analyze the image with Gemini
       const formData = new FormData();
       formData.append('image', selectedFile);
 
-      // First, analyze the image with Gemini
       console.log('Sending request to Gemini API...');
       const analyzeResponse = await axios.post('http://localhost:3000/api/gemini/analyze', formData, {
         headers: {
@@ -89,13 +103,16 @@ function Upload() {
       const plantInfo = analyzeResponse.data;
       console.log('Plant analysis:', plantInfo);
 
-      // Create plant object with Gemini analysis
+      // Create plant data with quantity
       const plantData = new FormData();
       plantData.append('name', plantInfo.species);
       plantData.append('category', plantInfo.category);
       plantData.append('description', plantInfo.description);
       plantData.append('co2Reduced', plantInfo.co2Reduced);
       plantData.append('image', selectedFile);
+      plantData.append('quantity', quantity.toString());
+
+      console.log('Submitting plant with quantity:', quantity);
 
       // Add plant to user's garden
       const response = await axios.post('http://localhost:3000/api/plants', plantData, {
@@ -105,20 +122,11 @@ function Upload() {
         },
       });
 
-      // Handle successful upload
       console.log('Plant added successfully:', response.data);
-      // Redirect to garden or show success message
       window.location.href = '/garden';
     } catch (err) {
       console.error('Error:', err);
       setError(err.response?.data?.message || 'Error uploading plant');
-      if (err.response?.status === 401) {
-        setError('Please sign in to upload plants');
-      } else if (err.message === 'Network Error') {
-        setError('Cannot connect to server. Please check if the backend is running.');
-      } else {
-        setError(err.response?.data?.message || 'Error uploading plant');
-      }
     } finally {
       setIsLoading(false);
     }
@@ -141,7 +149,32 @@ function Upload() {
           onClick={() => fileInputRef.current?.click()}
         >
           {preview ? (
-            <img src={preview} alt="Preview" className="max-h-96 mx-auto rounded-lg shadow-lg" />
+            <div className="space-y-6">
+              <img src={preview} alt="Preview" className="max-h-96 mx-auto rounded-lg shadow-lg" />
+              
+              {/* Quantity Counter */}
+              <div className="flex items-center justify-center space-x-4">
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleQuantityChange(-1);
+                  }}
+                  className="p-2 rounded-full bg-[#7fa37f] text-white hover:bg-[#4c724c] transition-colors"
+                >
+                  <FiMinus />
+                </button>
+                <span className="text-xl font-semibold text-[#5c4934] w-12 text-center">{quantity}</span>
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleQuantityChange(1);
+                  }}
+                  className="p-2 rounded-full bg-[#7fa37f] text-white hover:bg-[#4c724c] transition-colors"
+                >
+                  <FiPlus />
+                </button>
+              </div>
+            </div>
           ) : (
             <div>
               <input
