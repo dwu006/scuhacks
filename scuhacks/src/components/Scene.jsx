@@ -103,11 +103,13 @@ export function Scene() {
       <OrbitControls
         ref={controlsRef}
         minPolarAngle={0}
-        maxPolarAngle={Math.PI / 2.1}
+        maxPolarAngle={Math.PI / 2.1} // Exactly half PI to prevent looking below horizon
         enableZoom={true}
         enablePan={true}
         minDistance={5}
         maxDistance={50}
+        maxAzimuthAngle={Infinity} // Allow full rotation around Y axis
+        minAzimuthAngle={-Infinity}
       />
 
       {/* Scene container for rotation */}
