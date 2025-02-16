@@ -18,15 +18,15 @@ export async function uploadImageAndAnalyze(imageBuffer) {
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     // Prepare the prompt for structured output
-    const prompt = `Analyze this plant image and provide information in this exact JSON format, no additional text:
+    const prompt = `You are a master botanist. Deeply analyze this plant image and provide information in this exact JSON format:
 {
-  "species": "[scientific name] ([common name])",
-  "category": "[one of: bushes, fungi, flower, ferns, conifers, or trees]",
+  "species": "[scientific name] ([common name]) if unknown use just a defeault common name and no scientific name",
+  "category": "[one of: trees , bushes , fungi , flower , ferns , or conifers]",
   "description": "[brief description of characteristics and care instructions]",
-  "co2Reduced": "[how much does the plant reduce CO2 emissions (in CO2 g per day), if unknown use 0]"
+  "co2Reduced": "[how much does the plant reduce CO2 emissions (in CO2 g per day) be accurate as possible, if unknown use 0]"
 }`;
 
-    // Send Base64 image to Gemini
+    // Send Base64 image to Gemini 
     const result = await model.generateContent([
       { text: prompt },
       {

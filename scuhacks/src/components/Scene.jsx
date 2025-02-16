@@ -4,7 +4,7 @@ import { useGLTF, OrbitControls } from '@react-three/drei';
 import axios from 'axios';
 
 // Plant component with loading and error handling
-function Plant({ path, position, scale = 1, rotation = [0, 0, 0], yOffset = 0 }) {
+export function Plant({ path, position, scale = 1, rotation = [0, 0, 0], yOffset = 0 }) {
   const { scene } = useGLTF(path);
   const clonedScene = useMemo(() => scene.clone(), [scene]);
 
@@ -19,7 +19,7 @@ function Plant({ path, position, scale = 1, rotation = [0, 0, 0], yOffset = 0 })
 }
 
 // Ground tile component with instancing for better performance
-function Ground() {
+export function Ground() {
   const { scene } = useGLTF('/src/assets/dirt/ground.glb');
   const tileSize = 1.5;
   const gridSize = 50;
@@ -57,7 +57,7 @@ function Ground() {
   );
 }
 
-function Scene() {
+export default function Scene() {
   const sceneRef = useRef();
   const controlsRef = useRef();
   const [userPlants, setUserPlants] = useState([]);
@@ -233,5 +233,3 @@ function Scene() {
     </>
   );
 }
-
-export default Scene;

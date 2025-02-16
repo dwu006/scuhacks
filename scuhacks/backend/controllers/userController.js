@@ -135,6 +135,24 @@ export const logoutUser = async (req, res) => {
   }
 };
 
+// Get user by ID
+export const getUserById = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id)
+      .select('-password')
+      .populate('garden');
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json(user);
+  } catch (error) {
+    console.error('Error in getUserById:', error);
+    res.status(400).json({ message: error.message });
+  }
+};
+
 export const getAllUsersWithGardens = async (req, res) => {
   try {
     const users = await User.find() 
