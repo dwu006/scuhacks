@@ -1,15 +1,16 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import path from 'path'
 
-// https://vite.dev/config/
+// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-<<<<<<< Updated upstream
   define: {
     __REACT_ROUTER_FUTURE_FLAGS: {
       v7_startTransition: true,
       v7_relativeSplatPath: true
-=======
+    }
+  },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
@@ -19,7 +20,6 @@ export default defineConfig({
   server: {
     fs: {
       strict: false // Allow serving files from outside the root directory
->>>>>>> Stashed changes
     }
   }
 })
