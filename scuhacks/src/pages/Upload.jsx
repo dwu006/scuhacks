@@ -2,6 +2,8 @@ import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 import { FiMinus, FiPlus, FiUpload } from 'react-icons/fi';
+import { categoryToModel, modelConfigs } from '../utils/plantModels';
+import { useNavigate } from 'react-router-dom';
 
 function Upload() {
   const [isDragging, setIsDragging] = useState(false);
@@ -11,6 +13,7 @@ function Upload() {
   const [error, setError] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const fileInputRef = useRef(null);
+  const navigate = useNavigate();
 
   // Animation variants
   const containerVariants = {
@@ -134,7 +137,26 @@ function Upload() {
       });
 
       console.log('Plant added successfully:', response.data);
-      window.location.href = '/garden';
+
+      // Get the 3D model path based on plant category
+      const modelPath = categoryToModel[plantInfo.category.toLowerCase()] || categoryToModel.default;
+      const modelConfig = modelConfigs[modelPath];
+
+      // Store the plant data in localStorage for the garden scene
+      const existingPlants = JSON.parse(localStorage.getItem('gardenPlants') || '[]');
+      const newPlant = {
+        id: response.data._id,
+        type: plantInfo.category.toLowerCase(),
+        quantity: quantity,
+        modelPath: modelPath,
+        scale: modelConfig.scale,
+        yOffset: modelConfig.yOffset
+      };
+      
+      localStorage.setItem('gardenPlants', JSON.stringify([...existingPlants, newPlant]));
+
+      // Navigate to garden page
+      navigate('/garden');
     } catch (err) {
       console.error('Error:', err);
       setError('Error uploading plant');
