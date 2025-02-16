@@ -10,6 +10,7 @@ import Upload from './pages/Upload';
 import SignIn from './pages/SignIn';
 import SignUp from './pages/SignUp';
 import Account from './pages/Account.jsx';
+import Education from './pages/Education.jsx';
 
 // Mock data for statistics (replace with real data later)
 const plantStats = {
@@ -300,6 +301,7 @@ function App() {
           <Route path="/plants" element={<Plants />} />
           <Route path="/upload" element={<Upload />} />
           <Route path="/account" element={<Account />} />
+          <Route path="/education" element={<Education />} />
           <Route path="/signup" element={<SignUp />} />
         </Routes>
       </div>
