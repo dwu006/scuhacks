@@ -5,11 +5,21 @@ import { motion } from "framer-motion";
 const UserGarden = () => {
   const { userId } = useParams();
   const [garden, setGarden] = useState([]);
+  const [userName, setUserName] = useState("");
 
   useEffect(() => {
-    fetch(`http://localhost:3000/api/users/profile/${userId}`)
+    const token = localStorage.getItem('token');
+    
+    fetch(`http://localhost:4000/api/users/profile/${userId}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
       .then((res) => res.json())
-      .then((data) => setGarden(data.garden || []))
+      .then((data) => {
+        setGarden(data.garden || []);
+        setUserName(data.name || 'User');
+      })
       .catch((err) => console.error("Error fetching garden:", err));
   }, [userId]);
 
@@ -24,9 +34,9 @@ const UserGarden = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <h1 className="text-5xl font-bold text-[#5c4934] mb-4">User's Virtual Garden</h1>
+          <h1 className="text-5xl font-bold text-[#5c4934] mb-4">{userName}'s Virtual Garden</h1>
           <p className="text-[#8c7355] text-xl max-w-2xl mx-auto">
-            Explore the plants growing in this garden and see their environmental impact.
+            Explore the plants growing in {userName}'s garden and see their environmental impact.
           </p>
         </motion.div>
 
