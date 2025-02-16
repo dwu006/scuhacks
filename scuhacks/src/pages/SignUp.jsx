@@ -64,7 +64,7 @@ function SignUp() {
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-[#5c4934]">Create your account</h2>
           <p className="mt-2 text-center text-sm text-[#8c7355]">
-            Join Virtual Plant and start tracking your garden
+            Join Plant Portal and start tracking your garden
           </p>
         </div>
 
