@@ -3,7 +3,7 @@ import { useState } from 'react';
 
 // Mock data for statistics (replace with real data later)
 const plantStats = {
-  totalPlants: 1234,
+  totalPlants: 15,
   totalCO2Offset: 5678,
   topPlants: [
     { name: "Snake Plant", count: 156 },
@@ -38,7 +38,7 @@ export function StatisticsSidebar() {
   };
 
   return (
-    <motion.div 
+    <motion.div
       className="fixed right-0 top-0 bottom-0 my-auto h-fit w-64 bg-white/90 text-[#2d2417] rounded-l-lg shadow-lg backdrop-blur-sm border-l border-[#d3c5b4] z-50"
       drag="x"
       dragConstraints={{ left: 0, right: 250 }}
@@ -51,7 +51,7 @@ export function StatisticsSidebar() {
     >
       {/* Handle for dragging */}
       <div className="absolute left-2 top-1/2 transform -translate-y-1/2 h-16 w-1 rounded-full bg-[#d3c5b4]/50" />
-      
+
       <div className="p-6 space-y-8">
         {/* Total Statistics */}
         <div>
