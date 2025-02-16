@@ -24,13 +24,15 @@ function Navbar() {
       <nav className="flex justify-between items-center max-w-[1920px] mx-auto py-4 px-12">
         {/* Left side - Logo and Title */}
         <div className="flex-1 ml-8">
-          <Link to="/" className="flex items-center hover:scale-110 transform transition-all duration-200">
+          <Link to="/" className="flex items-center">
             <img
               src={logo}
               alt="Plant Portal Logo"
               className="w-20 h-20 object-contain"
             />
-            <span className="text-2xl font-bold text-[#5c4934] hover:text-[#7fa37f]">Plant Portal</span>
+            <span className="text-2xl font-bold text-[#5c4934] transition-colors duration-200 hover:text-[#7fa37f]">
+              Plant Portal
+            </span>
           </Link>
         </div>
 
