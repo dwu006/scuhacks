@@ -19,9 +19,9 @@ function Plant({ position, modelPath, scale = 1, rotation = 0 }) {
 
 // Ground tile component with instancing for better performance
 function Ground() {
-  const { scene } = useGLTF('/src/assets/dirt/Fertile soil.glb');
+  const { scene } = useGLTF('/src/assets/dirt/ground.glb');
   const tileSize = 1.5; // Halved tile size
-  const gridSize = 40; // Doubled grid size for more tiles
+  const gridSize = 100; // Doubled grid size for more tiles
   const offset = (gridSize * tileSize) / 2;
 
   // Create instances data
