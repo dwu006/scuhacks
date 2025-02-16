@@ -13,7 +13,7 @@ function Garden() {
     const token = localStorage.getItem('token');
     if (!token) {
       setShowSignInPrompt(true);
-      setTimeout(() => setShowSignInPrompt(false), 3000);
+      setTimeout(() => setShowSignInPrompt(false), 4000);
     }
   };
 

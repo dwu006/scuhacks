@@ -35,7 +35,7 @@ export function StatisticsSidebar() {
       const token = localStorage.getItem('token');
       if (!token) return;
 
-      const response = await axios.get('http://localhost:3000/api/users/profile', {
+      const response = await axios.get('http://localhost:4000/api/users/profile', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -133,7 +133,7 @@ export function StatisticsSidebar() {
           <h3 className="text-lg font-semibold mb-4 border-b border-[#d3c5b4] pb-2 text-[#5c4934]">Most Popular Plants</h3>
           <div className="space-y-3">
             {stats.popularPlants.map((plant, index) => (
-              <div key={plant.name} className="flex justify-between items-center">
+              <div key={`popular-${plant.name}-${index}`} className="flex justify-between items-center">
                 <div className="flex items-center">
                   <span className="text-sm font-medium mr-2 text-[#7fa37f]">#{index + 1}</span>
                   <span className="text-[#2d2417]">{plant.name}</span>
@@ -149,7 +149,7 @@ export function StatisticsSidebar() {
           <h3 className="text-lg font-semibold mb-4 border-b border-[#d3c5b4] pb-2 text-[#5c4934]">Top CO2 Offset Plants</h3>
           <div className="space-y-3">
             {stats.topCO2Plants.map((plant, index) => (
-              <div key={plant.name} className="flex justify-between items-center">
+              <div key={`co2-${plant.name}-${index}`} className="flex justify-between items-center">
                 <div className="flex items-center">
                   <span className="text-sm font-medium mr-2 text-[#7fa37f]">#{index + 1}</span>
                   <span className="text-[#2d2417]">{plant.name}</span>

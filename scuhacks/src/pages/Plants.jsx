@@ -18,7 +18,7 @@ function Plants() {
       }
 
       // Get the user's profile which includes the garden array
-      const userResponse = await axios.get('http://localhost:3000/api/users/profile', {
+      const userResponse = await axios.get('http://localhost:4000/api/users/profile', {
         headers: {
           'Authorization': `Bearer ${token}`
         }

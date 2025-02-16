@@ -21,7 +21,7 @@ function Plant({ position, modelPath, scale = 1, rotation = 0 }) {
 function Ground() {
   const { scene } = useGLTF('/src/assets/dirt/ground.glb');
   const tileSize = 1.5; // Halved tile size
-  const gridSize = 100; // Doubled grid size for more tiles
+  const gridSize = 50; // Reduced from 100 to 50
   const offset = (gridSize * tileSize) / 2;
 
   // Create instances data
@@ -63,10 +63,10 @@ export function Scene() {
   const sceneRef = useRef();
   const controlsRef = useRef();
 
-  // Rotate scene
+  // Slow down the rotation
   useFrame((state, delta) => {
     if (sceneRef.current) {
-      sceneRef.current.rotation.y += delta * 0.1;
+      sceneRef.current.rotation.y += delta * 0.05; // Reduced from 0.1 to 0.05
     }
   });
 
@@ -153,6 +153,8 @@ export function Scene() {
         maxDistance={50}
         maxAzimuthAngle={Infinity}
         minAzimuthAngle={-Infinity}
+        enableDamping={true}
+        dampingFactor={0.05}
       />
 
       {/* Scene container for rotation */}

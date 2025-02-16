@@ -29,9 +29,10 @@ function Account() {
         return;
       }
 
-      const response = await axios.get('http://localhost:3000/api/users/profile', {
+      const response = await axios.get('http://localhost:4000/api/users/profile', {
         headers: {
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'Access-Control-Allow-Origin': 'http://localhost:5173'
         }
       });
 
@@ -75,20 +76,21 @@ function Account() {
     try {
       const token = localStorage.getItem('token');
       await axios.put(
-        'http://localhost:3000/api/users/profile',
+        'http://localhost:4000/api/users/profile',
         {
           name: userData.name,
           email: userData.email
         },
         {
           headers: {
-            'Authorization': `Bearer ${token}`
+            'Authorization': `Bearer ${token}`,
+            'Access-Control-Allow-Origin': 'http://localhost:5173'
           }
         }
       );
       
       setIsEditing(false);
-      fetchUserData(); // Refresh data
+      fetchUserData();
     } catch (err) {
       setError(err.response?.data?.message || 'Error updating profile');
     }
@@ -98,11 +100,12 @@ function Account() {
     try {
       const token = localStorage.getItem('token');
       await axios.post(
-        'http://localhost:3000/api/users/logout',
+        'http://localhost:4000/api/users/logout',
         {},
         {
           headers: {
-            'Authorization': `Bearer ${token}`
+            'Authorization': `Bearer ${token}`,
+            'Access-Control-Allow-Origin': 'http://localhost:5173'
           }
         }
       );

@@ -108,7 +108,7 @@ function Upload() {
       formData.append('image', selectedFile);
 
       console.log('Sending request to Gemini API...');
-      const analyzeResponse = await axios.post('http://localhost:3000/api/gemini/analyze', formData, {
+      const analyzeResponse = await axios.post('http://localhost:4000/api/gemini/analyze', formData, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -127,7 +127,7 @@ function Upload() {
 
       console.log('Submitting plant with quantity:', quantity);
 
-      const response = await axios.post('http://localhost:3000/api/plants', plantData, {
+      const response = await axios.post('http://localhost:4000/api/plants', plantData, {
         headers: {
           'Authorization': `Bearer ${token}`
         },
