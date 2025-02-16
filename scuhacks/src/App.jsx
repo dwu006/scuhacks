@@ -289,22 +289,31 @@ function NavbarWrapper() {
 
 function App() {
   const [isGuest, setIsGuest] = useState(false);
+  const location = useLocation();
+  const isAuthPage = ['/signin', '/signup'].includes(location.pathname);
 
   return (
+    <div className="min-h-screen bg-[#f7f3eb] text-[#5c4934]">
+      {!isAuthPage && <NavbarWrapper />}
+      <Routes>
+        <Route path="/" element={<Navigate to="/signin" />} />
+        <Route path="/signin" element={<SignIn />} />
+        <Route path="/garden" element={<Garden />} />
+        <Route path="/plants" element={<Plants />} />
+        <Route path="/upload" element={<Upload />} />
+        <Route path="/account" element={<Account />} />
+        <Route path="/signup" element={<SignUp />} />
+      </Routes>
+    </div>
+  );
+}
+
+function AppWrapper() {
+  return (
     <Router>
-      <div className="min-h-screen bg-black text-white">
-        <NavbarWrapper />
-        <Routes>
-          <Route path="/" element={<Login onGuestLogin={setIsGuest} />} />
-          <Route path="/garden" element={<Garden />} />
-          <Route path="/plants" element={<Plants />} />
-          <Route path="/upload" element={<Upload />} />
-          <Route path="/account" element={<Account />} />
-          <Route path="/signup" element={<SignUp />} />
-        </Routes>
-      </div>
+      <App />
     </Router>
   );
 }
 
-export default App;
+export default AppWrapper;

@@ -3,17 +3,37 @@
 @tailwind utilities;
 
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  --color-earth-100: #f7f3eb; /* Light sand */
+  --color-earth-200: #e6dfd3; /* Soft beige */
+  --color-earth-300: #c4b7a6; /* Warm taupe */
+  --color-earth-400: #8c7355; /* Rich brown */
+  --color-earth-500: #5c4934; /* Deep brown */
+  
+  --color-sage-100: #f0f4f0; /* Light sage */
+  --color-sage-200: #dce7dc; /* Soft sage */
+  --color-sage-300: #b8ccb8; /* Medium sage */
+  --color-sage-400: #7fa37f; /* Deep sage */
+  --color-sage-500: #4c724c; /* Forest sage */
 }
 
 body {
-  margin: 0;
-  min-width: 320px;
-  min-height: 100vh;
+  background-color: var(--color-earth-100);
+  color: var(--color-earth-500);
+}
+
+.btn-primary {
+  @apply bg-[#7fa37f] text-white hover:bg-[#4c724c] transition-colors duration-300;
+}
+
+.btn-secondary {
+  @apply bg-[#c4b7a6] text-[#5c4934] hover:bg-[#8c7355] hover:text-white transition-colors duration-300;
+}
+
+.input-primary {
+  @apply bg-white border border-[#c4b7a6] rounded-md px-3 py-2 text-[#5c4934] 
+         focus:outline-none focus:ring-2 focus:ring-[#7fa37f] focus:border-transparent;
+}
+
+.card-earth {
+  @apply bg-white border border-[#e6dfd3] rounded-xl shadow-sm;
 }
