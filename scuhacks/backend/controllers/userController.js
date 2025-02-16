@@ -35,12 +35,14 @@ export const registerUser = async (req, res) => {
       name,
       email,
       password: hashedPassword,
+      createdAt: new Date()
     });
 
     res.status(201).json({
       _id: user._id,
       name: user.name,
       email: user.email,
+      createdAt: user.createdAt,
       token: generateToken(user._id),
     });
   } catch (error) {
@@ -83,6 +85,39 @@ export const getUserProfile = async (req, res) => {
     } else {
       res.status(404).json({ message: 'User not found' });
     }
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+// Update user profile
+export const updateUserProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Check if email is already taken by another user
+    if (req.body.email && req.body.email !== user.email) {
+      const emailExists = await User.findOne({ email: req.body.email });
+      if (emailExists) {
+        return res.status(400).json({ message: 'Email already in use' });
+      }
+    }
+
+    user.name = req.body.name || user.name;
+    user.email = req.body.email || user.email;
+
+    const updatedUser = await user.save();
+
+    res.json({
+      _id: updatedUser._id,
+      name: updatedUser.name,
+      email: updatedUser.email,
+      createdAt: updatedUser.createdAt,
+      garden: updatedUser.garden
+    });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }

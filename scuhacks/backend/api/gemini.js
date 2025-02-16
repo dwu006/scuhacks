@@ -23,7 +23,7 @@ export async function uploadImageAndAnalyze(imageBuffer) {
   "species": "[scientific name] ([common name])",
   "category": "[one of: bushes, fungi, flower, ferns, conifers, or gymnosperms]",
   "description": "[brief description of characteristics and care instructions]",
-  "co2Reduced": "[number only]"
+  "co2Reduced": "[how much does the plant reduce CO2 emissions (in CO2 g per day)]"
 }`;
 
     // Send Base64 image to Gemini

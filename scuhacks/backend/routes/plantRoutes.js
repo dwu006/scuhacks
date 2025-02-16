@@ -12,7 +12,6 @@ const upload = multer({
     fileSize: 5 * 1024 * 1024, // 5MB limit
   },
   fileFilter: (req, file, cb) => {
-    // Accept only image files
     if (file.mimetype.startsWith('image/')) {
       cb(null, true);
     } else {
@@ -21,14 +20,17 @@ const upload = multer({
   },
 });
 
-// CRUD operations
+// All routes require authentication
+router.use(protect);
+
+// Plant routes
 router.route('/')
-  .post(protect, upload.single('image'), addPlant)  // Protected: Only authenticated users can add plants
-  .get(getUserGarden);  // Public: Anyone can view the garden
+  .get(getUserGarden)  // Protected: Only get plants from user's garden array
+  .post(upload.single('image'), addPlant);
 
 router.route('/:id')
-  .get(getPlantById)  // Public: Anyone can view plant details
-  .put(protect, updatePlant)  // Protected: Only authenticated users can update
-  .delete(protect, deletePlant);  // Protected: Only authenticated users can delete
+  .get(getPlantById)
+  .put(upload.single('image'), updatePlant)
+  .delete(deletePlant);
 
 export default router;
