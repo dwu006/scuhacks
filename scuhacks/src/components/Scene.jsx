@@ -126,16 +126,16 @@ function Scene() {
     if (!category) return plantModels[0]; // Default to first model if no category
 
     category = category.toLowerCase();
-    
+
     // Try to find an exact match first
-    let model = plantModels.find(m => 
+    let model = plantModels.find(m =>
       m.categories.some(c => c.toLowerCase() === category)
     );
 
     // If no exact match, try to find a partial match
     if (!model) {
-      model = plantModels.find(m => 
-        m.categories.some(c => 
+      model = plantModels.find(m =>
+        m.categories.some(c =>
           category.includes(c) || c.includes(category)
         )
       );
@@ -204,7 +204,7 @@ function Scene() {
       <OrbitControls
         ref={controlsRef}
         minPolarAngle={Math.PI / 4}
-        maxPolarAngle={Math.PI / 2}
+        maxPolarAngle={Math.PI / 2.1}
         minDistance={10}
         maxDistance={50}
         maxAzimuthAngle={Infinity}
