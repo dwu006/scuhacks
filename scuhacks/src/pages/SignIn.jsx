@@ -45,9 +45,9 @@ function SignIn() {
         transition={{ duration: 0.5 }}
       >
         <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-[#5c4934]">Welcome back</h2>
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-[#5c4934]">Welcome Back</h2>
           <p className="mt-2 text-center text-sm text-[#8c7355]">
-            Sign in to access your plant portal
+            Sign in to access your Plant Portal!
           </p>
         </div>
 
