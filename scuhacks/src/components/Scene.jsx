@@ -82,42 +82,42 @@ export function Scene() {
   // Define all available plant models
   const plantModels = [
     {
-      path: '/src/assets/plants/Bush.glb',
+      path: '/src/assets/plants/bush.glb',
       scale: 15.0,
       yOffset: 1.0
     },
     {
-      path: '/src/assets/plants/Desert marigold.glb',
+      path: '/src/assets/plants/flower1.glb',
       scale: 0.3,
       yOffset: 0
     },
     {
-      path: '/src/assets/plants/Fern.glb',
+      path: '/src/assets/plants/fern.glb',
       scale: 0.8,
       yOffset: 0.7
     },
     {
-      path: '/src/assets/plants/Mushroom.glb',
+      path: '/src/assets/plants/mushroom.glb',
       scale: 0.08,
       yOffset: 0
     },
     {
-      path: '/src/assets/plants/Pastel Plume Flowers.glb',
+      path: '/src/assets/plants/flower2.glb',
       scale: 0.9,
       yOffset: 1
     },
     {
-      path: '/src/assets/plants/Pine Tree.glb',
+      path: '/src/assets/plants/pinetree.glb',
       scale: 2.5,
       yOffset: 4.4
     },
     {
-      path: '/src/assets/plants/Tree-2.glb',
+      path: '/src/assets/plants/roundtree.glb',
       scale: 2.5,
       yOffset: 4.25
     },
     {
-      path: '/src/assets/plants/tulip 3.glb',
+      path: '/src/assets/plants/flower3.glb',
       scale: 1.4,
       yOffset: 0.85
     }
