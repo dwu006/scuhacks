@@ -308,18 +308,13 @@ function NavbarWrapper() {
 function App() {
   return (
     <Router>
-      <div className="min-h-screen bg-black text-white">
+      <div className="App">
         <NavbarWrapper />
         <Routes>
+          {/* Public Routes */}
           <Route path="/signin" element={<SignIn />} />
-          <Route path="/" element={<Login onGuestLogin={setIsGuest} />} />
-          <Route path="/garden" element={<Garden />} />
-          <Route path="/plants" element={<Plants />} />
-          <Route path="/upload" element={<Upload />} />
-          <Route path="/account" element={<Account />} />
-          <Route path="/education" element={<Education />} />
           <Route path="/signup" element={<SignUp />} />
-          <Route path="/" element={<Navigate to="/garden" />} />
+          <Route path="/" element={<Navigate to="/signin" />} />
           
           {/* Protected Routes */}
           <Route path="/garden" element={
@@ -340,6 +335,11 @@ function App() {
           <Route path="/account" element={
             <ProtectedRoute>
               <Account />
+            </ProtectedRoute>
+          } />
+          <Route path="/education" element={
+            <ProtectedRoute>
+              <Education />
             </ProtectedRoute>
           } />
         </Routes>
