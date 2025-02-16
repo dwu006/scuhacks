@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 
 function Account() {
   const [userData, setUserData] = useState({
@@ -12,9 +13,34 @@ function Account() {
 
   const [isEditing, setIsEditing] = useState(false);
 
+  const navigate = useNavigate();
+
   const handleSave = () => {
     setIsEditing(false);
     // Add save logic here
+  };
+
+  const handleLogout = async () => {
+    try {
+      // Call the logout endpoint
+      const response = await fetch('http://localhost:5000/api/users/logout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+
+      // Clear the authentication token and redirect regardless of response
+      localStorage.removeItem('token');
+      navigate('/signin');
+      
+    } catch (error) {
+      console.error('Error during logout:', error);
+      // Still clear token and redirect even if there's an error
+      localStorage.removeItem('token');
+      navigate('/signin');
+    }
   };
 
   return (
@@ -72,7 +98,7 @@ function Account() {
                   <p className="text-lg">{userData.joinDate}</p>
                 </div>
               </div>
-              <div className="pt-4 flex justify-end">
+              <div className="pt-4 flex justify-between items-center">
                 {isEditing ? (
                   <div className="space-x-4">
                     <button
@@ -89,12 +115,20 @@ function Account() {
                     </button>
                   </div>
                 ) : (
-                  <button
-                    onClick={() => setIsEditing(true)}
-                    className="px-4 py-2 text-sm text-green-500 hover:text-green-400 transition-colors"
-                  >
-                    Edit Profile
-                  </button>
+                  <div className="flex justify-between w-full">
+                    <button
+                      onClick={handleLogout}
+                      className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+                    >
+                      Logout
+                    </button>
+                    <button
+                      onClick={() => setIsEditing(true)}
+                      className="px-4 py-2 text-sm text-green-500 hover:text-green-400 transition-colors"
+                    >
+                      Edit Profile
+                    </button>
+                  </div>
                 )}
               </div>
             </div>

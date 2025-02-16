@@ -4,7 +4,7 @@ import User from '../models/User.js';
 // Create a new plant and add to user's garden
 export const addPlant = async (req, res) => {
   try {
-    const { name, category, co2Reduced } = req.body;
+    const { name, category, co2Reduced, description } = req.body;
     const image = {
       data: req.file.buffer,
       contentType: req.file.mimetype
@@ -15,6 +15,7 @@ export const addPlant = async (req, res) => {
       name,
       category,
       co2Reduced,
+      description,
       image,
       plantedDate: new Date()
     });
@@ -57,7 +58,7 @@ export const getPlantById = async (req, res) => {
 // Update plant details
 export const updatePlant = async (req, res) => {
   try {
-    const { name, category, co2Reduced } = req.body;
+    const { name, category, co2Reduced, description } = req.body;
     const plant = await Plant.findById(req.params.id);
 
     if (!plant) {
@@ -68,6 +69,7 @@ export const updatePlant = async (req, res) => {
     plant.name = name || plant.name;
     plant.category = category || plant.category;
     plant.co2Reduced = co2Reduced || plant.co2Reduced;
+    plant.description = description || plant.description;
     
     if (req.file) {
       plant.image = {

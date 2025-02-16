@@ -7,6 +7,10 @@ const plantSchema = new mongoose.Schema({
   category: {
     type: String
   },
+  description: {
+    type: String,
+    default: ''
+  },
   co2Reduced: {
     type: Number
   },

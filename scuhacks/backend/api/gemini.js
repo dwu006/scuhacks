@@ -1,29 +1,61 @@
-import { GoogleAIFileManager } from "@google/generative-ai/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const fileManager = new GoogleAIFileManager('AIzaSyDxNbeQxgqx3pEVmQ9-cWcd5D67gbOE1Pk');
+// Convert Buffer to Base64 string
+const bufferToBase64 = (buffer) => {
+  return buffer.toString('base64');
+};
 
-const uploadResult = await fileManager.uploadFile(
-  `flower.png`,
-  {
-    mimeType: "image/png",
-    displayName: "flower",
-  },
-);
-console.log(
-  `Uploaded file ${uploadResult.file.displayName} as: ${uploadResult.file.uri}`,
-);
+// Function to analyze image using Gemini
+export async function uploadImageAndAnalyze(imageBuffer) {
+  try {
+    if (!imageBuffer) throw new Error("No image buffer provided");
 
+    // Convert buffer to Base64
+    const base64Data = bufferToBase64(imageBuffer);
 
-const genAI = new GoogleGenerativeAI('AIzaSyDxNbeQxgqx3pEVmQ9-cWcd5D67gbOE1Pk');
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-const result = await model.generateContent([
-  "You are a master botanist. Figure out what species the plant is. Put the plant into one of these categories: bushes, fungi, flower, ferns, conifers, gymnosperms. Output species, category, description, and amount of CO2 reduced as a number.",
-  {
-    fileData: {
-      fileUri: uploadResult.file.uri,
-      mimeType: uploadResult.file.mimeType,
-    },
-  },
-]);
-console.log(result.response.text());
+    // Initialize Gemini AI
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+    const model = genAI.getGenerativeModel({ model: "gemini-pro-vision" });
+
+    // Prepare the prompt for structured output
+    const prompt = `You are a master botanist. Analyze this plant image and provide information in the following JSON format:
+    {
+      "species": "Scientific name and common name",
+      "category": "One of: bushes, fungi, flower, ferns, conifers, or gymnosperms",
+      "description": "A detailed concise description of the plant including its characteristics and care instructions",
+      "co2Reduced": "Estimated CO2 reduction per day (just the number)",
+    }
+    Only respond with valid JSON. Do not include any other text.`;
+
+    // Send Base64 image to Gemini
+    const result = await model.generateContent({
+      contents: [
+        {
+          parts: [
+            { text: prompt },
+            {
+              inlineData: {
+                data: base64Data,
+                mimeType: "image/jpeg",
+              },
+            },
+          ],
+        },
+      ],
+    });
+
+    const response = result.response.text();
+    
+    try {
+      // Parse the response as JSON
+      const jsonResponse = JSON.parse(response);
+      return jsonResponse;
+    } catch (parseError) {
+      console.error("Error parsing Gemini response as JSON:", parseError);
+      throw new Error("Invalid response format from Gemini");
+    }
+  } catch (error) {
+    console.error("Error analyzing image:", error);
+    throw error;
+  }
+}

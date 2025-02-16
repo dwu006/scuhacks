@@ -2,7 +2,7 @@ import { Canvas, useFrame } from '@react-three/fiber'
 import { OrbitControls, Grid } from '@react-three/drei'
 import { useEffect, useRef, useState } from 'react'
 import * as THREE from 'three'
-import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, Link, useNavigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Garden from './pages/Garden';
 import Plants from './pages/Plants';
@@ -10,6 +10,7 @@ import Upload from './pages/Upload';
 import SignIn from './pages/SignIn';
 import SignUp from './pages/SignUp';
 import Account from './pages/Account';
+import ProtectedRoute from './components/ProtectedRoute';
 
 // Mock data for statistics (replace with real data later)
 const plantStats = {
@@ -197,24 +198,40 @@ function StatisticsSidebar() {
 }
 
 function Login({ onGuestLogin }) {
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isGuest, setIsGuest] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Add login logic here
-    console.log('Login attempt with:', email, password);
+    try {
+      const response = await fetch('http://localhost:3001/api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        localStorage.setItem('token', data.token);
+        // Redirect to garden page after successful login
+        navigate('/garden');
+      } else {
+        setError(data.message || 'Login failed');
+      }
+    } catch (err) {
+      setError('An error occurred during login');
+    }
   };
 
   const handleGuestLogin = () => {
     setIsGuest(true);
     onGuestLogin(true);
   };
-
-  if (isGuest) {
-    return <Navigate to="/garden" />;
-  }
 
   return (
     <div className="min-h-screen bg-black flex items-center justify-center px-4">
@@ -288,19 +305,36 @@ function NavbarWrapper() {
 }
 
 function App() {
-  const [isGuest, setIsGuest] = useState(false);
-
   return (
     <Router>
       <div className="min-h-screen bg-black text-white">
         <NavbarWrapper />
         <Routes>
-          <Route path="/" element={<Login onGuestLogin={setIsGuest} />} />
-          <Route path="/garden" element={<Garden />} />
-          <Route path="/plants" element={<Plants />} />
-          <Route path="/upload" element={<Upload />} />
-          <Route path="/account" element={<Account />} />
+          <Route path="/signin" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />
+          <Route path="/" element={<Navigate to="/garden" />} />
+          
+          {/* Protected Routes */}
+          <Route path="/garden" element={
+            <ProtectedRoute>
+              <Garden />
+            </ProtectedRoute>
+          } />
+          <Route path="/plants" element={
+            <ProtectedRoute>
+              <Plants />
+            </ProtectedRoute>
+          } />
+          <Route path="/upload" element={
+            <ProtectedRoute>
+              <Upload />
+            </ProtectedRoute>
+          } />
+          <Route path="/account" element={
+            <ProtectedRoute>
+              <Account />
+            </ProtectedRoute>
+          } />
         </Routes>
       </div>
     </Router>

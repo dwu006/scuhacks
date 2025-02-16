@@ -1,9 +1,13 @@
 import { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
+import axios from 'axios';
 
 function Upload() {
   const [isDragging, setIsDragging] = useState(false);
   const [preview, setPreview] = useState(null);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
   const fileInputRef = useRef(null);
 
   const handleDrag = (e) => {
@@ -37,6 +41,7 @@ function Upload() {
   const handleFiles = (files) => {
     const file = files[0];
     if (file.type.startsWith('image/')) {
+      setSelectedFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
         setPreview(reader.result);
@@ -49,6 +54,69 @@ function Upload() {
     const files = e.target.files;
     if (files && files.length > 0) {
       handleFiles(files);
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (!selectedFile) {
+      setError('Please select an image first');
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setError('Please sign in to upload plants');
+        return;
+      }
+
+      // Create FormData to send the image
+      const formData = new FormData();
+      formData.append('image', selectedFile);
+
+      // First, analyze the image with Gemini
+      const analyzeResponse = await axios.post('http://localhost:5000/api/gemini/analyze', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${token}`
+        },
+      });
+
+      const plantInfo = analyzeResponse.data;
+      console.log('Plant analysis:', plantInfo);
+
+      // Create plant object with Gemini analysis
+      const plantData = new FormData();
+      plantData.append('name', plantInfo.species);
+      plantData.append('category', plantInfo.category);
+      plantData.append('description', plantInfo.description);
+      plantData.append('co2Reduced', plantInfo.co2Reduced);
+      plantData.append('image', selectedFile);
+
+      // Add plant to user's garden
+      const response = await axios.post('http://localhost:5000/api/plants', plantData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${token}`
+        },
+      });
+
+      // Handle successful upload
+      console.log('Plant added successfully:', response.data);
+      // Redirect to garden or show success message
+      window.location.href = '/garden';
+    } catch (err) {
+      console.error('Error:', err);
+      if (err.response?.status === 401) {
+        setError('Please sign in to upload plants');
+      } else {
+        setError(err.response?.data?.message || 'Error uploading plant');
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -92,7 +160,10 @@ function Upload() {
                 />
                 <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg flex items-center justify-center">
                   <button
-                    onClick={() => setPreview(null)}
+                    onClick={() => {
+                      setPreview(null);
+                      setSelectedFile(null);
+                    }}
                     className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition-colors duration-300"
                   >
                     Remove
@@ -101,59 +172,47 @@ function Upload() {
               </div>
             ) : (
               <div className="space-y-4">
-                <div className="text-6xl text-gray-500 flex justify-center">
-                  <svg
-                    className="w-20 h-20"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                    />
-                  </svg>
+                <div className="text-gray-400">
+                  <p className="text-lg mb-2">Drag and drop your image here</p>
+                  <p className="text-sm">or</p>
                 </div>
-                <div>
-                  <p className="text-xl mb-2">Drag and drop your image here</p>
-                  <p className="text-gray-500">or</p>
-                </div>
-                <div>
-                  <input
-                    type="file"
-                    ref={fileInputRef}
-                    onChange={handleFileInput}
-                    accept="image/*"
-                    className="hidden"
-                  />
-                  <button
-                    onClick={() => fileInputRef.current?.click()}
-                    className="bg-green-600 text-white px-6 py-3 rounded-md hover:bg-green-700 transition-colors duration-300"
-                  >
-                    Browse Files
-                  </button>
-                </div>
-                <p className="text-sm text-gray-500">
-                  Supported formats: JPG, PNG, GIF
-                </p>
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  className="bg-green-600 text-white px-6 py-3 rounded-md hover:bg-green-700 transition-colors duration-300"
+                >
+                  Choose File
+                </button>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleFileInput}
+                  accept="image/*"
+                  className="hidden"
+                />
               </div>
             )}
           </motion.div>
 
+          {error && (
+            <div className="mt-4 text-red-500 text-center">
+              {error}
+            </div>
+          )}
+
           {preview && (
             <motion.div
-              className="mt-8 text-center"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
+              className="mt-8 flex justify-center"
             >
               <button
-                className="bg-green-600 text-white px-8 py-3 rounded-md hover:bg-green-700 transition-colors duration-300"
+                onClick={handleSubmit}
+                disabled={isLoading}
+                className={`bg-green-600 text-white px-8 py-3 rounded-md hover:bg-green-700 transition-colors duration-300 ${
+                  isLoading ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
               >
-                Add to Garden
+                {isLoading ? 'Analyzing...' : 'Submit'}
               </button>
             </motion.div>
           )}
