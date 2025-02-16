@@ -93,7 +93,7 @@ export function Scene() {
     },
     {
       path: '/src/assets/plants/Fern.glb',
-      scale: 0.3,
+      scale: 0.8,
       yOffset: 0.7
     },
     {
