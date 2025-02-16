@@ -87,7 +87,7 @@ export function Scene() {
       yOffset: 1.0
     },
     {
-      path: '/src/assets/plants/flower1.glb',
+      path: '/src/assets/plants/flower.glb',
       scale: 0.3,
       yOffset: 0
     },
@@ -102,7 +102,7 @@ export function Scene() {
       yOffset: 0
     },
     {
-      path: '/src/assets/plants/flower2.glb',
+      path: '/src/assets/plants/flower1.glb',
       scale: 0.9,
       yOffset: 1
     },
@@ -117,7 +117,7 @@ export function Scene() {
       yOffset: 4.25
     },
     {
-      path: '/src/assets/plants/flower3.glb',
+      path: '/src/assets/plants/flower2.glb',
       scale: 1.4,
       yOffset: 0.85
     }
@@ -139,7 +139,7 @@ export function Scene() {
 
   // Preload all models
   plantModels.forEach(model => useGLTF.preload(model.path));
-  useGLTF.preload('/src/assets/dirt/Fertile Soil.glb');
+  useGLTF.preload('/src/assets/dirt/ground.glb');
 
   return (
     <>
@@ -183,13 +183,13 @@ export function Scene() {
 
 // Preload all models to prevent loading flicker
 useGLTF.preload([
-  '/src/assets/plants/Bush.glb',
-  '/src/assets/plants/Desert marigold.glb',
-  '/src/assets/plants/Fern.glb',
-  '/src/assets/plants/Mushroom.glb',
-  '/src/assets/plants/Pastel Plume Flowers.glb',
-  '/src/assets/plants/Pine Tree.glb',
-  '/src/assets/plants/Tree-2.glb',
-  '/src/assets/plants/tulip 3.glb',
-  '/src/assets/dirt/Fertile Soil.glb'
+  '/src/assets/plants/bush.glb',
+  '/src/assets/plants/flower0.glb',
+  '/src/assets/plants/fern.glb',
+  '/src/assets/plants/mushroom.glb',
+  '/src/assets/plants/flower1.glb',
+  '/src/assets/plants/pinetree.glb',
+  '/src/assets/plants/roundtree.glb',
+  '/src/assets/plants/flower2.glb',
+  '/src/assets/dirt/ground.glb'
 ]);
