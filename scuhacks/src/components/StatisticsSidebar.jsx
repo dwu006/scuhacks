@@ -1,5 +1,6 @@
 import { motion, useAnimation } from 'framer-motion';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
 
 // Mock data for statistics (replace with real data later)
 const plantStats = {
@@ -18,6 +19,65 @@ const plantStats = {
 };
 
 export function StatisticsSidebar() {
+  const [stats, setStats] = useState({
+    totalPlants: 0,
+    totalCO2Offset: '0g',
+    popularPlants: [],
+    topCO2Plants: []
+  });
+
+  useEffect(() => {
+    fetchStats();
+  }, []);
+
+  const fetchStats = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      const response = await axios.get('http://localhost:3000/api/users/profile', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      const { garden } = response.data;
+
+      // Calculate total plants (sum of quantities)
+      const totalPlants = garden.reduce((total, plant) => total + (plant.quantity || 1), 0);
+
+      // Calculate total CO2 offset
+      const totalCO2 = garden.reduce((total, plant) => total + (plant.co2Reduced || 0), 0);
+
+      // Get popular plants (by quantity)
+      const popularPlants = [...garden]
+        .sort((a, b) => (b.quantity || 1) - (a.quantity || 1))
+        .slice(0, 3)
+        .map(plant => ({
+          name: plant.name.match(/\((.*?)\)/)?.[1] || plant.name,
+          quantity: plant.quantity || 1
+        }));
+
+      // Get top CO2 offset plants
+      const topCO2Plants = [...garden]
+        .sort((a, b) => (b.co2Reduced || 0) - (a.co2Reduced || 0))
+        .slice(0, 3)
+        .map(plant => ({
+          name: plant.name.match(/\((.*?)\)/)?.[1] || plant.name,
+          co2Reduced: plant.co2Reduced || 0
+        }));
+
+      setStats({
+        totalPlants,
+        totalCO2Offset: `${totalCO2}g`,
+        popularPlants,
+        topCO2Plants
+      });
+    } catch (err) {
+      console.error('Error fetching stats:', err);
+    }
+  };
+
   const [isOpen, setIsOpen] = useState(true);
   const controls = useAnimation();
 
@@ -59,11 +119,11 @@ export function StatisticsSidebar() {
           <div className="space-y-4">
             <div>
               <p className="text-[#8c7355]">Total Plants</p>
-              <p className="text-2xl font-bold text-[#5c4934]">{plantStats.totalPlants}</p>
+              <p className="text-2xl font-bold text-[#5c4934]">{stats.totalPlants}</p>
             </div>
             <div>
               <p className="text-[#8c7355]">Total CO2 Offset</p>
-              <p className="text-2xl font-bold text-[#5c4934]">{plantStats.totalCO2Offset} kg</p>
+              <p className="text-2xl font-bold text-[#5c4934]">{stats.totalCO2Offset}</p>
             </div>
           </div>
         </div>
@@ -72,13 +132,13 @@ export function StatisticsSidebar() {
         <div>
           <h3 className="text-lg font-semibold mb-4 border-b border-[#d3c5b4] pb-2 text-[#5c4934]">Most Popular Plants</h3>
           <div className="space-y-3">
-            {plantStats.topPlants.map((plant, index) => (
+            {stats.popularPlants.map((plant, index) => (
               <div key={plant.name} className="flex justify-between items-center">
                 <div className="flex items-center">
                   <span className="text-sm font-medium mr-2 text-[#7fa37f]">#{index + 1}</span>
                   <span className="text-[#2d2417]">{plant.name}</span>
                 </div>
-                <span className="text-[#8c7355]">{plant.count}</span>
+                <span className="text-[#8c7355]">{plant.quantity}</span>
               </div>
             ))}
           </div>
@@ -88,13 +148,13 @@ export function StatisticsSidebar() {
         <div>
           <h3 className="text-lg font-semibold mb-4 border-b border-[#d3c5b4] pb-2 text-[#5c4934]">Top CO2 Offset Plants</h3>
           <div className="space-y-3">
-            {plantStats.topCO2Plants.map((plant, index) => (
+            {stats.topCO2Plants.map((plant, index) => (
               <div key={plant.name} className="flex justify-between items-center">
                 <div className="flex items-center">
                   <span className="text-sm font-medium mr-2 text-[#7fa37f]">#{index + 1}</span>
                   <span className="text-[#2d2417]">{plant.name}</span>
                 </div>
-                <span className="text-[#8c7355]">{plant.offset} kg</span>
+                <span className="text-[#8c7355]">{plant.co2Reduced}g</span>
               </div>
             ))}
           </div>

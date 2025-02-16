@@ -8,6 +8,7 @@ function Account() {
     name: '',
     email: '',
     joinDate: '',
+    uniquePlants: 0,
     totalPlants: 0,
     totalCO2Offset: '0g'
   });
@@ -39,22 +40,26 @@ function Account() {
       const { name, email, createdAt, garden } = response.data;
       const totalCO2 = garden.reduce((total, plant) => total + (plant.co2Reduced || 0), 0);
 
-      // Default to current date if createdAt is not available
-      const date = createdAt ? new Date(createdAt) : new Date();
+      // Calculate total plants (sum of quantities) and unique plants
+      const uniquePlants = garden.length;
+      const totalPlants = garden.reduce((total, plant) => total + (plant.quantity || 1), 0);
+
+      // Format date as Month Year
+      const date = new Date(createdAt);
       const formattedDate = date.toLocaleDateString('en-US', { 
         month: 'long',
         year: 'numeric'
       });
 
       console.log('Original date:', createdAt);
-      console.log('Parsed date:', date);
       console.log('Formatted date:', formattedDate);
 
       setUserData({
         name,
         email,
         joinDate: formattedDate,
-        totalPlants: garden.length,
+        uniquePlants,
+        totalPlants,
         totalCO2Offset: `${totalCO2}g`
       });
     } catch (err) {
@@ -209,6 +214,10 @@ function Account() {
                 <div>
                   <p className="text-sm text-[#8c7355] mb-1">Total Plants</p>
                   <p className="text-3xl font-bold text-[#7fa37f]">{userData.totalPlants}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-[#8c7355] mb-1">Unique Plants</p>
+                  <p className="text-3xl font-bold text-[#7fa37f]">{userData.uniquePlants}</p>
                 </div>
                 <div>
                   <p className="text-sm text-[#8c7355] mb-1">CO₂ Offset</p>
