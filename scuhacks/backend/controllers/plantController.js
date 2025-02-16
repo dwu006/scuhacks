@@ -2,6 +2,43 @@ import Plant from '../models/Plant.js';
 import User from '../models/User.js';
 import mongoose from 'mongoose';
 
+// Function to calculate Levenshtein distance between two strings
+function levenshteinDistance(str1, str2) {
+  const m = str1.length;
+  const n = str2.length;
+  const dp = Array.from({ length: m + 1 }, () => Array(n + 1).fill(0));
+
+  for (let i = 0; i <= m; i++) {
+    dp[i][0] = i;
+  }
+  for (let j = 0; j <= n; j++) {
+    dp[0][j] = j;
+  }
+
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      if (str1[i - 1] === str2[j - 1]) {
+        dp[i][j] = dp[i - 1][j - 1];
+      } else {
+        dp[i][j] = Math.min(
+          dp[i - 1][j - 1] + 1,
+          dp[i - 1][j] + 1,
+          dp[i][j - 1] + 1
+        );
+      }
+    }
+  }
+
+  return dp[m][n];
+}
+
+// Function to calculate similarity percentage
+function calculateSimilarity(str1, str2) {
+  const maxLength = Math.max(str1.length, str2.length);
+  const distance = levenshteinDistance(str1.toLowerCase(), str2.toLowerCase());
+  return ((maxLength - distance) / maxLength) * 100;
+}
+
 // Create a new plant and add to user's garden
 export const addPlant = async (req, res) => {
   try {
@@ -15,7 +52,58 @@ export const addPlant = async (req, res) => {
       return res.status(400).json({ message: 'Please upload an image' });
     }
 
-    // Create new plant with quantity
+    // Get user's garden
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Get all plants in user's garden
+    const userPlants = await Plant.find({
+      _id: { $in: user.garden }
+    });
+
+    // Find the most similar plant
+    let mostSimilarPlant = null;
+    let highestSimilarity = 0;
+
+    for (const plant of userPlants) {
+      const similarity = calculateSimilarity(name, plant.name);
+      console.log(`Comparing "${name}" with "${plant.name}": ${similarity}%`);
+      
+      // Consider plants with similarity > 80% as matches
+      if (similarity > 80 && similarity > highestSimilarity) {
+        highestSimilarity = similarity;
+        mostSimilarPlant = plant;
+      }
+    }
+
+    if (mostSimilarPlant) {
+      console.log(`Found similar plant: "${mostSimilarPlant.name}" (${highestSimilarity}% match)`);
+      
+      // Update existing plant's quantity and CO2
+      const newQuantity = mostSimilarPlant.quantity + quantity;
+      const updatedPlant = await Plant.findByIdAndUpdate(
+        mostSimilarPlant._id,
+        {
+          $set: {
+            quantity: newQuantity,
+            co2Reduced: parseFloat(co2Reduced) * newQuantity
+          }
+        },
+        { new: true }
+      );
+
+      // Convert image to base64 for response
+      const plantObj = updatedPlant.toObject();
+      if (plantObj.image && plantObj.image.data) {
+        plantObj.image.data = plantObj.image.data.toString('base64');
+      }
+
+      return res.status(200).json(plantObj);
+    }
+
+    // If no similar plant found, create new plant
     const plant = await Plant.create({
       name,
       category,
@@ -34,8 +122,6 @@ export const addPlant = async (req, res) => {
       req.user._id,
       { $push: { garden: plant._id } }
     );
-
-    console.log('Added plant to garden:', plant._id); // Debug log
 
     // Convert image to base64 for response
     const plantObj = plant.toObject();

@@ -6,7 +6,7 @@ const CommunityPage = () => {
   const [users, setUsers] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:3000/api/users/community")
+    fetch("http://localhost:4000/api/users/community")
       .then((res) => res.json())
       .then((data) => {
         console.log("Fetched Users:", data);

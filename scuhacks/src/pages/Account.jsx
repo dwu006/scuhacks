@@ -15,6 +15,7 @@ function Account() {
 
   const [isEditing, setIsEditing] = useState(false);
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -31,19 +32,21 @@ function Account() {
 
       const response = await axios.get('http://localhost:4000/api/users/profile', {
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Access-Control-Allow-Origin': 'http://localhost:5173'
+          'Authorization': `Bearer ${token}`
         }
       });
 
-      console.log('Full API response:', response.data);
-
-      const { name, email, createdAt, garden } = response.data;
-      const totalCO2 = garden.reduce((total, plant) => total + (plant.co2Reduced || 0), 0);
+      const { name, email, createdAt, garden = [] } = response.data;
+      
+      // Calculate total CO2 offset, handling null/undefined values
+      const totalCO2 = garden.reduce((total, plant) => {
+        const co2Value = Number(plant.co2Reduced) || 0;
+        return total + (co2Value * (plant.quantity || 1));
+      }, 0);
 
       // Calculate total plants (sum of quantities) and unique plants
       const uniquePlants = garden.length;
-      const totalPlants = garden.reduce((total, plant) => total + (plant.quantity || 1), 0);
+      const totalPlants = garden.reduce((total, plant) => total + (Number(plant.quantity) || 1), 0);
 
       // Format date as Month Year
       const date = new Date(createdAt);
@@ -52,29 +55,34 @@ function Account() {
         year: 'numeric'
       });
 
-      console.log('Original date:', createdAt);
-      console.log('Formatted date:', formattedDate);
-
       setUserData({
-        name,
-        email,
+        name: name || '',
+        email: email || '',
         joinDate: formattedDate,
         uniquePlants,
         totalPlants,
-        totalCO2Offset: `${totalCO2}g`
+        totalCO2Offset: `${Math.round(totalCO2)}g`
       });
+      setError(null);
     } catch (err) {
       console.error('Error fetching user data:', err);
-      setError(err.response?.data?.message || 'Error fetching user data');
+      setError('Unable to load account data. Please try again.');
       if (err.response?.status === 401) {
         navigate('/login');
       }
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleSave = async () => {
     try {
       const token = localStorage.getItem('token');
+      if (!token) {
+        navigate('/login');
+        return;
+      }
+
       await axios.put(
         'http://localhost:4000/api/users/profile',
         {
@@ -83,39 +91,45 @@ function Account() {
         },
         {
           headers: {
-            'Authorization': `Bearer ${token}`,
-            'Access-Control-Allow-Origin': 'http://localhost:5173'
+            'Authorization': `Bearer ${token}`
           }
         }
       );
       
       setIsEditing(false);
-      fetchUserData();
+      setError(null);
+      await fetchUserData();
     } catch (err) {
-      setError(err.response?.data?.message || 'Error updating profile');
+      console.error('Error updating profile:', err);
+      setError('Unable to update profile. Please try again.');
     }
   };
 
   const handleLogout = async () => {
     try {
       const token = localStorage.getItem('token');
-      await axios.post(
-        'http://localhost:4000/api/users/logout',
-        {},
-        {
+      if (token) {
+        await axios.post('http://localhost:4000/api/users/logout', {}, {
           headers: {
-            'Authorization': `Bearer ${token}`,
-            'Access-Control-Allow-Origin': 'http://localhost:5173'
+            'Authorization': `Bearer ${token}`
           }
-        }
-      );
-    } catch (error) {
-      console.error('Error during logout:', error);
+        });
+      }
+    } catch (err) {
+      console.error('Error during logout:', err);
     } finally {
       localStorage.removeItem('token');
-      navigate('/');
+      navigate('/login');
     }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#f5f1ec] flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-[#7fa37f] border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#f5f1ec] text-[#2d2417] p-8">

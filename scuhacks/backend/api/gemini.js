@@ -21,9 +21,9 @@ export async function uploadImageAndAnalyze(imageBuffer) {
     const prompt = `Analyze this plant image and provide information in this exact JSON format, no additional text:
 {
   "species": "[scientific name] ([common name])",
-  "category": "[one of: bushes, fungi, flower, ferns, conifers, or gymnosperms]",
+  "category": "[one of: bushes, fungi, flower, ferns, conifers, or trees]",
   "description": "[brief description of characteristics and care instructions]",
-  "co2Reduced": "[how much does the plant reduce CO2 emissions (in CO2 g per day)]"
+  "co2Reduced": "[how much does the plant reduce CO2 emissions (in CO2 g per day), if unknown use 0]"
 }`;
 
     // Send Base64 image to Gemini

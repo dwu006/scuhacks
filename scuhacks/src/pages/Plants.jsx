@@ -1,12 +1,56 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+
+// Import icons
+import bushIcon from '../assets/icons/bush_icon.png';
+import fernIcon from '../assets/icons/fern_icon.png';
+import flowerIcon from '../assets/icons/flower_icon.png';
+import mushroomIcon from '../assets/icons/mushroom_icon.png';
+import treeIcon from '../assets/icons/tree_icon.png';
+
+const getPlantIcon = (category) => {
+  // Add debug log to see what category we're receiving
+  console.log('Getting icon for category:', category);
+  
+  if (!category) return flowerIcon;
+  
+  const lowerCategory = category.toLowerCase().trim();
+  console.log('Normalized category:', lowerCategory);
+  
+  switch (lowerCategory) {
+    case 'bush':
+    case 'bushes':
+      return bushIcon;
+    case 'fern':
+    case 'ferns':
+      return fernIcon;
+    case 'flower':
+    case 'flowers':
+      return flowerIcon;
+    case 'mushroom':
+    case 'mushrooms':
+    case 'fungi':
+      return mushroomIcon;
+    case 'angiosperm':
+    case 'angiosperms':
+    case 'gymnosperm':
+    case 'gymnosperms':
+    case 'tree':
+    case 'trees':
+      return treeIcon;
+    default:
+      console.log('No matching icon found for category:', lowerCategory);
+      return flowerIcon;
+  }
+};
 
 function Plants() {
   const [plants, setPlants] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [deleteModal, setDeleteModal] = useState(null);
   const navigate = useNavigate();
 
   const fetchPlants = async () => {
@@ -39,6 +83,42 @@ function Plants() {
       }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDelete = async (plant) => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        navigate('/login');
+        return;
+      }
+
+      if (plant.quantity > 1) {
+        // If quantity > 1, decrease quantity by 1
+        await axios.put(`http://localhost:4000/api/plants/${plant._id}`, 
+          { quantity: plant.quantity - 1 },
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          }
+        );
+      } else {
+        // If quantity is 1, remove the plant
+        await axios.delete(`http://localhost:4000/api/plants/${plant._id}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+      }
+
+      // Refresh plants after deletion
+      fetchPlants();
+      setDeleteModal(null);
+    } catch (err) {
+      console.error('Error deleting plant:', err);
+      setError(err.response?.data?.message || 'Error deleting plant');
     }
   };
 
@@ -85,19 +165,26 @@ function Plants() {
               key={plant._id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-white rounded-xl overflow-hidden shadow-lg border border-[#d3c5b4]"
+              className="bg-white rounded-xl overflow-hidden shadow-lg border border-[#d3c5b4] relative"
             >
-              <div className="h-48 relative overflow-hidden">
+              <button
+                onClick={() => setDeleteModal(plant)}
+                className="absolute top-3 right-3 w-8 h-8 bg-[#a65d57] hover:bg-[#8f4f4a] rounded-full flex items-center justify-center transition-colors z-10"
+                aria-label="Delete plant"
+              >
+                <span className="text-white text-xl font-bold leading-none">×</span>
+              </button>
+              <div className="h-48 relative overflow-hidden bg-[#f5f1ec] flex items-center justify-center">
                 <img 
-                  src={`data:${plant.image.contentType};base64,${plant.image.data}`}
-                  alt={plant.name}
-                  className="w-full h-full object-cover"
+                  src={getPlantIcon(plant.plantType || plant.category || plant.type)}
+                  alt={(plant.plantType || plant.category || plant.type) || 'plant'}
+                  className="w-24 h-24 object-contain"
                 />
               </div>
               <div className="p-6">
                 <div className="mb-4">
                   <h3 className="text-lg font-bold text-[#5c4934]">{plant.name?.split('(')[0]?.trim() || 'Unknown Plant'}</h3>
-                  <p className="text-sm text-[#8c7355]">{plant.name?.match(/\((.*?)\)/)?.[1] || ''}</p>
+                  <p className="text-sm text-[#8c7355] capitalize">{plant.plantType || plant.category || plant.type || ''}</p>
                 </div>
                 <p className="text-[#8c7355] text-sm mb-4">{plant.description}</p>
                 <div className="grid grid-cols-2 gap-4">
@@ -114,6 +201,49 @@ function Plants() {
             </motion.div>
           ))}
         </div>
+
+        {/* Delete Confirmation Modal */}
+        <AnimatePresence>
+          {deleteModal && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+              onClick={() => setDeleteModal(null)}
+            >
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                className="bg-white rounded-xl p-6 max-w-md w-full mx-4 shadow-xl border border-[#d3c5b4]"
+                onClick={e => e.stopPropagation()}
+              >
+                <h3 className="text-xl font-bold text-[#5c4934] mb-2">Remove Plant</h3>
+                <p className="text-[#8c7355] mb-6">
+                  {deleteModal.quantity > 1 
+                    ? `Are you sure you want to remove one ${deleteModal.name?.split('(')[0]?.trim()}? The count will decrease from ${deleteModal.quantity} to ${deleteModal.quantity - 1}.`
+                    : `Are you sure you want to remove this ${deleteModal.name?.split('(')[0]?.trim()}?`
+                  }
+                </p>
+                <div className="flex gap-4">
+                  <button
+                    onClick={() => setDeleteModal(null)}
+                    className="flex-1 px-4 py-2 rounded-lg border border-[#d3c5b4] text-[#8c7355] hover:bg-[#f5f1ec] transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => handleDelete(deleteModal)}
+                    className="flex-1 px-4 py-2 rounded-lg bg-[#a65d57] text-white hover:bg-[#8f4f4a] transition-colors"
+                  >
+                    Remove
+                  </button>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {plants.length === 0 && (
           <div className="text-center mt-12">
