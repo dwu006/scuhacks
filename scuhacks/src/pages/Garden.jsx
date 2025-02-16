@@ -31,18 +31,21 @@ function Garden() {
       </div>
 
       {/* Hero Section */}
-      <div className="relative z-10 flex flex-col items-center justify-center mt-32 space-y-6">
+      <div className="relative z-10 flex flex-col items-center justify-center mt-24 space-y-6">
         <motion.h1 
-          className="text-6xl font-bold text-[#5c4934]"
+          className="text-6xl font-bold text-black"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1.5, ease: [0.33, 1, 0.68, 1] }}
         >
-          Plant a Plant!
+          <span>Plant</span>{" "}
+          <span>a</span>{" "}
+          <span>Plant</span>
+          <span>!</span>
         </motion.h1>
         
         <motion.h2 
-          className="text-xl text-[#8c7355]"
+          className="text-xl text-black"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1.5, delay: 0.1, ease: [0.33, 1, 0.68, 1] }}
