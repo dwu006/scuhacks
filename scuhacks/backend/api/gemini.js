@@ -14,45 +14,50 @@ export async function uploadImageAndAnalyze(imageBuffer) {
     const base64Data = bufferToBase64(imageBuffer);
 
     // Initialize Gemini AI
-    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ model: "gemini-pro-vision" });
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_KEY)
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     // Prepare the prompt for structured output
-    const prompt = `You are a master botanist. Analyze this plant image and provide information in the following JSON format:
-    {
-      "species": "Scientific name and common name",
-      "category": "One of: bushes, fungi, flower, ferns, conifers, or gymnosperms",
-      "description": "A detailed concise description of the plant including its characteristics and care instructions",
-      "co2Reduced": "Estimated CO2 reduction per day (just the number)",
-    }
-    Only respond with valid JSON. Do not include any other text.`;
+    const prompt = `Analyze this plant image and provide information in this exact JSON format, no additional text:
+{
+  "species": "[scientific name] ([common name])",
+  "category": "[one of: bushes, fungi, flower, ferns, conifers, or gymnosperms]",
+  "description": "[brief description of characteristics and care instructions]",
+  "co2Reduced": "[number only]"
+}`;
 
     // Send Base64 image to Gemini
-    const result = await model.generateContent({
-      contents: [
-        {
-          parts: [
-            { text: prompt },
-            {
-              inlineData: {
-                data: base64Data,
-                mimeType: "image/jpeg",
-              },
-            },
-          ],
-        },
-      ],
-    });
+    const result = await model.generateContent([
+      { text: prompt },
+      {
+        inlineData: {
+          mimeType: "image/jpeg",
+          data: base64Data
+        }
+      }
+    ]);
 
-    const response = result.response.text();
+    const response = await result.response;
+    const text = response.text();
     
     try {
-      // Parse the response as JSON
-      const jsonResponse = JSON.parse(response);
+      // Clean the response text to ensure it's valid JSON
+      const cleanedText = text.replace(/```json\n?|\n?```/g, '').trim();
+      const jsonResponse = JSON.parse(cleanedText);
+      
+      // Validate the response has all required fields
+      const requiredFields = ['species', 'category', 'description', 'co2Reduced'];
+      const missingFields = requiredFields.filter(field => !jsonResponse[field]);
+      
+      if (missingFields.length > 0) {
+        throw new Error(`Missing required fields: ${missingFields.join(', ')}`);
+      }
+
       return jsonResponse;
     } catch (parseError) {
-      console.error("Error parsing Gemini response as JSON:", parseError);
-      throw new Error("Invalid response format from Gemini");
+      console.error("Raw Gemini response:", text);
+      console.error("Parse error:", parseError);
+      throw new Error("Failed to parse Gemini response as valid JSON. Raw response: " + text.substring(0, 100));
     }
   } catch (error) {
     console.error("Error analyzing image:", error);

@@ -3,10 +3,21 @@ import { motion } from 'framer-motion';
 import { FiUpload } from 'react-icons/fi';
 import { StatisticsSidebar } from '../components/StatisticsSidebar';
 import { Scene } from '../components/Scene';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { useState } from 'react';
 
 function Garden() {
-  const navigate = useNavigate();
+  const [showSignInPrompt, setShowSignInPrompt] = useState(false);
+
+  const handleUploadClick = () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setShowSignInPrompt(true);
+      setTimeout(() => setShowSignInPrompt(false), 3000);
+    }
+  };
+
+  const token = localStorage.getItem('token');
 
   return (
     <div className="relative min-h-screen overflow-hidden">
@@ -27,13 +38,27 @@ function Garden() {
           <h2 className="text-xl mb-10 text-[#8c7355]">
             Take a picture of your plant and get started
           </h2>
-          <button
-            onClick={() => navigate('/upload')}
-            className="bg-[#7fa37f] text-white font-bold py-3 px-6 rounded-md hover:bg-[#4c724c] transition-all duration-300 flex items-center space-x-2 mx-auto"
+          
+          <Link 
+            to={token ? '/upload' : '/signin'}
+            onClick={handleUploadClick}
+            className="inline-flex items-center space-x-2 bg-[#7fa37f] text-white font-bold py-3 px-6 rounded-md hover:bg-[#4c724c] transition-all duration-300"
           >
             <FiUpload className="w-5 h-5" />
             <span>Upload a picture</span>
-          </button>
+          </Link>
+
+          {/* Sign in prompt */}
+          {showSignInPrompt && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 20 }}
+              className="mt-4 p-4 bg-[#a65d57]/10 border border-[#a65d57] rounded-lg"
+            >
+              <p className="text-[#a65d57]">Please sign in to upload plants</p>
+            </motion.div>
+          )}
         </motion.div>
       </div>
 

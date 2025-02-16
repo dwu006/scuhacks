@@ -73,12 +73,13 @@ function Upload() {
         return;
       }
 
-      // Create FormData to send the image
+      // Create FormData and append the file
       const formData = new FormData();
       formData.append('image', selectedFile);
 
       // First, analyze the image with Gemini
-      const analyzeResponse = await axios.post('http://localhost:5000/api/gemini/analyze', formData, {
+      console.log('Sending request to Gemini API...');
+      const analyzeResponse = await axios.post('http://localhost:3000/api/gemini/analyze', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           'Authorization': `Bearer ${token}`
@@ -97,7 +98,7 @@ function Upload() {
       plantData.append('image', selectedFile);
 
       // Add plant to user's garden
-      const response = await axios.post('http://localhost:5000/api/plants', plantData, {
+      const response = await axios.post('http://localhost:3000/api/plants', plantData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           'Authorization': `Bearer ${token}`
@@ -110,8 +111,11 @@ function Upload() {
       window.location.href = '/garden';
     } catch (err) {
       console.error('Error:', err);
+      setError(err.response?.data?.message || 'Error uploading plant');
       if (err.response?.status === 401) {
         setError('Please sign in to upload plants');
+      } else if (err.message === 'Network Error') {
+        setError('Cannot connect to server. Please check if the backend is running.');
       } else {
         setError(err.response?.data?.message || 'Error uploading plant');
       }

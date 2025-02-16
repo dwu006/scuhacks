@@ -314,14 +314,10 @@ function App() {
           {/* Public Routes */}
           <Route path="/signin" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />
-          <Route path="/" element={<Navigate to="/signin" />} />
+          <Route path="/" element={<Navigate to="/garden" />} />
+          <Route path="/garden" element={<Garden />} />
           
           {/* Protected Routes */}
-          <Route path="/garden" element={
-            <ProtectedRoute>
-              <Garden />
-            </ProtectedRoute>
-          } />
           <Route path="/plants" element={
             <ProtectedRoute>
               <Plants />

@@ -34,10 +34,18 @@ export const addPlant = async (req, res) => {
 // Get all plants in user's garden
 export const getUserGarden = async (req, res) => {
   try {
-    const user = await User.findById(req.user._id).populate('garden');
-    res.json(user.garden);
+    if (req.user) {
+      // If user is authenticated, get their personal garden
+      const user = await User.findById(req.user._id).populate('garden');
+      res.json(user.garden);
+    } else {
+      // If user is not authenticated, get all plants (public view)
+      const allPlants = await Plant.find().sort({ plantedDate: -1 });
+      res.json(allPlants);
+    }
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    console.error('Error fetching garden:', error);
+    res.status(500).json({ message: error.message });
   }
 };
 
