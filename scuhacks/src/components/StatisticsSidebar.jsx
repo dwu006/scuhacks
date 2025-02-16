@@ -1,88 +1,14 @@
 import { motion, useAnimation } from 'framer-motion';
-import { useState, useEffect } from 'react';
-import axios from 'axios';
-
-// Mock data for statistics (replace with real data later)
-const plantStats = {
-  totalPlants: 15,
-  totalCO2Offset: 5678,
-  topPlants: [
-    { name: "Plant 1", count: 7 },
-    { name: "Plant 2", count: 4 },
-    { name: "Plant 3", count: 2 }
-  ],
-  topCO2Plants: [
-    { name: "Plant 4", offset: 1200 },
-    { name: "Plant 5", offset: 1100 },
-    { name: "Plant 6", offset: 950 }
-  ]
-};
+import { useState } from 'react';
+import { useUserProfile } from '../hooks/useUserProfile';
 
 export function StatisticsSidebar() {
-  const [stats, setStats] = useState({
-    totalPlants: 0,
-    totalCO2Offset: '0g',
-    popularPlants: [],
-    topCO2Plants: []
-  });
-
-  useEffect(() => {
-    fetchStats();
-  }, []);
-
-  const fetchStats = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      if (!token) return;
-
-      const response = await axios.get('http://localhost:4000/api/users/profile', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      const { garden } = response.data;
-
-      // Calculate total plants (sum of quantities)
-      const totalPlants = garden.reduce((total, plant) => total + (plant.quantity || 1), 0);
-
-      // Calculate total CO2 offset
-      const totalCO2 = garden.reduce((total, plant) => total + (plant.co2Reduced || 0), 0);
-
-      // Get popular plants (by quantity)
-      const popularPlants = [...garden]
-        .sort((a, b) => (b.quantity || 1) - (a.quantity || 1))
-        .slice(0, 3)
-        .map(plant => ({
-          name: plant.name.match(/\((.*?)\)/)?.[1] || plant.name,
-          quantity: plant.quantity || 1
-        }));
-
-      // Get top CO2 offset plants
-      const topCO2Plants = [...garden]
-        .sort((a, b) => (b.co2Reduced || 0) - (a.co2Reduced || 0))
-        .slice(0, 3)
-        .map(plant => ({
-          name: plant.name.match(/\((.*?)\)/)?.[1] || plant.name,
-          co2Reduced: plant.co2Reduced || 0
-        }));
-
-      setStats({
-        totalPlants,
-        totalCO2Offset: `${totalCO2}g`,
-        popularPlants,
-        topCO2Plants
-      });
-    } catch (err) {
-      console.error('Error fetching stats:', err);
-    }
-  };
-
+  const { userData, loading } = useUserProfile();
   const [isOpen, setIsOpen] = useState(true);
   const controls = useAnimation();
 
   const handleDragEnd = (event, info) => {
-    const threshold = 100; // Pixels to determine if sidebar should close/open
+    const threshold = 100;
     const velocity = info.velocity.x;
     const offset = info.offset.x;
 
@@ -97,77 +23,68 @@ export function StatisticsSidebar() {
     }
   };
 
+  // Format CO2 value
+  const formatCO2 = (value) => {
+    if (!value) return '0g';
+    if (value >= 1000) {
+      return `${(value / 1000).toFixed(1)}kg`;
+    }
+    return `${Math.round(value)}g`;
+  };
+
+  if (loading || !userData) {
+    return null;
+  }
+
+  const { stats } = userData;
+
   return (
     <motion.div
-      className="fixed right-0 top-[88px] bottom-0 my-auto h-fit 
-        w-56 sm:w-60 md:w-64 lg:w-72 
-        bg-[#f2e8dc] text-[#2d2417] rounded-l-lg shadow-lg 
-        backdrop-blur-sm border-l border-[#d3c5b4] z-50"
+      className="fixed right-0 top-[88px] bottom-0 my-auto h-fit bg-white rounded-l-xl p-6 shadow-lg border-l border-y border-[#d3c5b4]"
       drag="x"
-      dragConstraints={{
-        left: 0,
-        right: window.innerWidth <= 640 ? 220 :
-          window.innerWidth <= 768 ? 240 :
-            window.innerWidth <= 1024 ? 260 : 280
-      }}
+      dragConstraints={{ left: 0, right: 250 }}
       dragElastic={0.2}
-      dragMomentum={true}
-      animate={controls}
       onDragEnd={handleDragEnd}
+      animate={controls}
       initial={{ x: 0 }}
-      style={{ touchAction: "none" }}
     >
-      {/* Handle for dragging */}
-      <div className="absolute left-2 top-1/2 transform -translate-y-1/2 h-16 w-1 rounded-full bg-[#d3c5b4]/50" />
-
-      <div className="p-4 sm:p-5 md:p-6 space-y-6 sm:space-y-7 md:space-y-8">
-        {/* Total Statistics */}
-        <div>
-          <h3 className="text-lg sm:text-xl font-semibold mb-4 border-b border-[#d3c5b4] pb-2 text-[#5c4934]">
-            Garden Statistics
-          </h3>
-          <div className="space-y-4">
+      <div className="w-64">
+        <h2 className="text-xl font-semibold mb-6 text-[#5c4934]">Garden Statistics</h2>
+        <div className="space-y-6">
+          <div>
+            <p className="text-sm text-[#8c7355] mb-1">Total Plants</p>
+            <p className="text-3xl font-bold text-[#7fa37f]">{stats?.totalPlants || 0}</p>
+          </div>
+          <div>
+            <p className="text-sm text-[#8c7355] mb-1">CO₂ Offset</p>
+            <p className="text-3xl font-bold text-[#7fa37f]">{formatCO2(stats?.totalCO2)}</p>
+          </div>
+          {stats?.popularPlants?.length > 0 && (
             <div>
-              <p className="text-[#8c7355]">Total Plants</p>
-              <p className="text-2xl font-bold text-[#5c4934]">{stats.totalPlants}</p>
+              <p className="text-sm text-[#8c7355] mb-2">Most Popular Plants</p>
+              <ul className="space-y-2">
+                {stats.popularPlants.map((plant, index) => (
+                  <li key={index} className="flex justify-between items-center">
+                    <span className="text-[#2d2417]">{plant.name}</span>
+                    <span className="text-[#7fa37f] font-medium">{plant.quantity}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
+          )}
+          {stats?.topCO2Plants?.length > 0 && (
             <div>
-              <p className="text-[#8c7355]">Total CO2 Offset</p>
-              <p className="text-2xl font-bold text-[#5c4934]">{stats.totalCO2Offset}</p>
+              <p className="text-sm text-[#8c7355] mb-2">Top CO₂ Reducers</p>
+              <ul className="space-y-2">
+                {stats.topCO2Plants.map((plant, index) => (
+                  <li key={index} className="flex justify-between items-center">
+                    <span className="text-[#2d2417]">{plant.name}</span>
+                    <span className="text-[#7fa37f] font-medium">{formatCO2(plant.co2Reduced)}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
-          </div>
-        </div>
-
-        {/* Most Popular Plants */}
-        <div>
-          <h3 className="text-lg font-semibold mb-4 border-b border-[#d3c5b4] pb-2 text-[#5c4934]">Most Popular Plants</h3>
-          <div className="space-y-3">
-            {stats.popularPlants.map((plant, index) => (
-              <div key={`popular-${plant.name}-${index}`} className="flex justify-between items-center">
-                <div className="flex items-center">
-                  <span className="text-sm font-medium mr-2 text-[#7fa37f]">#{index + 1}</span>
-                  <span className="text-[#2d2417]">{plant.name}</span>
-                </div>
-                <span className="text-[#8c7355]">{plant.quantity}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Top CO2 Offset Plants */}
-        <div>
-          <h3 className="text-lg font-semibold mb-4 border-b border-[#d3c5b4] pb-2 text-[#5c4934]">Top CO2 Offset Plants</h3>
-          <div className="space-y-3">
-            {stats.topCO2Plants.map((plant, index) => (
-              <div key={`co2-${plant.name}-${index}`} className="flex justify-between items-center">
-                <div className="flex items-center">
-                  <span className="text-sm font-medium mr-2 text-[#7fa37f]">#{index + 1}</span>
-                  <span className="text-[#2d2417]">{plant.name}</span>
-                </div>
-                <span className="text-[#8c7355]">{plant.co2Reduced}g</span>
-              </div>
-            ))}
-          </div>
+          )}
         </div>
       </div>
     </motion.div>

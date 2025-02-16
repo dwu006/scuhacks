@@ -9,7 +9,8 @@ const userSchema = mongoose.Schema({
   email: {
     type: String,
     required: true,
-    unique: true
+    unique: true,
+    index: true // Add index for email lookups
   },
   password: {
     type: String,
@@ -17,11 +18,13 @@ const userSchema = mongoose.Schema({
   },
   garden: [{
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Plant'
+    ref: 'Plant',
+    index: true // Add index for garden lookups
   }],
   createdAt: {
     type: Date,
-    default: Date.now
+    default: Date.now,
+    index: true // Add index for date-based queries
   }
 });
 

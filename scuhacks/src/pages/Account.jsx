@@ -1,78 +1,30 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { useUserProfile } from '../hooks/useUserProfile';
 
 function Account() {
-  const [userData, setUserData] = useState({
-    name: '',
-    email: '',
-    joinDate: '',
-    uniquePlants: 0,
-    totalPlants: 0,
-    totalCO2Offset: '0g'
-  });
-
   const [isEditing, setIsEditing] = useState(false);
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [editData, setEditData] = useState({ name: '', email: '' });
+  const { userData, loading, error, refetch } = useUserProfile();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchUserData();
-  }, []);
+  const formatJoinDate = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      month: 'long',
+      year: 'numeric'
+    });
+  };
 
-  const fetchUserData = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        navigate('/login');
-        return;
-      }
-
-      const response = await axios.get('http://localhost:4000/api/users/profile', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      const { name, email, createdAt, garden = [] } = response.data;
-      
-      // Calculate total CO2 offset, handling null/undefined values
-      const totalCO2 = garden.reduce((total, plant) => {
-        const co2Value = Number(plant.co2Reduced) || 0;
-        return total + (co2Value * (plant.quantity || 1));
-      }, 0);
-
-      // Calculate total plants (sum of quantities) and unique plants
-      const uniquePlants = garden.length;
-      const totalPlants = garden.reduce((total, plant) => total + (Number(plant.quantity) || 1), 0);
-
-      // Format date as Month Year
-      const date = new Date(createdAt);
-      const formattedDate = date.toLocaleDateString('en-US', { 
-        month: 'long',
-        year: 'numeric'
-      });
-
-      setUserData({
-        name: name || '',
-        email: email || '',
-        joinDate: formattedDate,
-        uniquePlants,
-        totalPlants,
-        totalCO2Offset: `${Math.round(totalCO2)}g`
-      });
-      setError(null);
-    } catch (err) {
-      console.error('Error fetching user data:', err);
-      setError('Unable to load account data. Please try again.');
-      if (err.response?.status === 401) {
-        navigate('/login');
-      }
-    } finally {
-      setLoading(false);
+  const formatCO2 = (value) => {
+    if (!value) return '0g';
+    if (value >= 1000) {
+      return `${(value / 1000).toFixed(1)}kg`;
     }
+    return `${Math.round(value)}g`;
   };
 
   const handleSave = async () => {
@@ -86,8 +38,8 @@ function Account() {
       await axios.put(
         'http://localhost:4000/api/users/profile',
         {
-          name: userData.name,
-          email: userData.email
+          name: editData.name,
+          email: editData.email
         },
         {
           headers: {
@@ -95,13 +47,14 @@ function Account() {
           }
         }
       );
-      
+
       setIsEditing(false);
-      setError(null);
-      await fetchUserData();
+      await refetch();
     } catch (err) {
-      console.error('Error updating profile:', err);
-      setError('Unable to update profile. Please try again.');
+      console.error('Error updating user data:', err);
+      if (err.response?.status === 401) {
+        navigate('/login');
+      }
     }
   };
 
@@ -165,8 +118,8 @@ function Account() {
                   {isEditing ? (
                     <input
                       type="text"
-                      value={userData.name || ''}
-                      onChange={(e) => setUserData(prev => ({ ...prev, name: e.target.value }))}
+                      value={editData.name}
+                      onChange={(e) => setEditData(prev => ({ ...prev, name: e.target.value }))}
                       className="w-full bg-white border border-[#d3c5b4] rounded-md px-3 py-2 text-[#2d2417] placeholder-[#8c7355] focus:outline-none focus:ring-2 focus:ring-[#7fa37f] focus:border-[#7fa37f]"
                     />
                   ) : (
@@ -178,18 +131,18 @@ function Account() {
                   {isEditing ? (
                     <input
                       type="email"
-                      value={userData.email || ''}
-                      onChange={(e) => setUserData(prev => ({ ...prev, email: e.target.value }))}
+                      value={editData.email}
+                      onChange={(e) => setEditData(prev => ({ ...prev, email: e.target.value }))}
                       className="w-full bg-white border border-[#d3c5b4] rounded-md px-3 py-2 text-[#2d2417] placeholder-[#8c7355] focus:outline-none focus:ring-2 focus:ring-[#7fa37f] focus:border-[#7fa37f]"
                     />
                   ) : (
                     <p className="text-lg text-[#2d2417]">{userData.email}</p>
                   )}
                 </div>
-                <div>
+                {/* <div>
                   <label className="block text-sm text-[#8c7355] mb-1">Planting Since</label>
-                  <p className="text-lg text-[#2d2417]">{userData.joinDate}</p>
-                </div>
+                  <p className="text-lg text-[#2d2417]">{formatJoinDate(userData?.createdAt)}</p>
+                </div> */}
               </div>
               <div className="pt-4 flex justify-between items-center">
                 {isEditing ? (
@@ -209,7 +162,10 @@ function Account() {
                   </>
                 ) : (
                   <button
-                    onClick={() => setIsEditing(true)}
+                    onClick={() => {
+                      setIsEditing(true);
+                      setEditData({ name: userData.name, email: userData.email });
+                    }}
                     className="px-4 py-2 border border-[#d3c5b4] text-[#8c7355] rounded-md hover:bg-[#f5f1ec] transition-colors"
                   >
                     Edit Profile
@@ -230,15 +186,15 @@ function Account() {
               <div className="space-y-6">
                 <div>
                   <p className="text-sm text-[#8c7355] mb-1">Total Plants</p>
-                  <p className="text-3xl font-bold text-[#7fa37f]">{userData.totalPlants}</p>
+                  <p className="text-3xl font-bold text-[#7fa37f]">{userData?.stats?.totalPlants || 0}</p>
                 </div>
                 <div>
                   <p className="text-sm text-[#8c7355] mb-1">Unique Plants</p>
-                  <p className="text-3xl font-bold text-[#7fa37f]">{userData.uniquePlants}</p>
+                  <p className="text-3xl font-bold text-[#7fa37f]">{userData?.stats?.uniquePlants || 0}</p>
                 </div>
                 <div>
                   <p className="text-sm text-[#8c7355] mb-1">CO₂ Offset</p>
-                  <p className="text-3xl font-bold text-[#7fa37f]">{userData.totalCO2Offset}</p>
+                  <p className="text-3xl font-bold text-[#7fa37f]">{formatCO2(userData?.stats?.totalCO2)}</p>
                 </div>
               </div>
             </div>

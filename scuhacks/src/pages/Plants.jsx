@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { useUserProfile } from '../hooks/useUserProfile';
 
 // Import icons
 import bushIcon from '../assets/icons/bush_icon.png';
@@ -47,44 +48,10 @@ const getPlantIcon = (category) => {
 };
 
 function Plants() {
-  const [plants, setPlants] = useState([]);
+  const { userData, loading, error: profileError, refetch } = useUserProfile();
   const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [deleteModal, setDeleteModal] = useState(null);
   const navigate = useNavigate();
-
-  const fetchPlants = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        navigate('/login');
-        return;
-      }
-
-      // Get the user's profile which includes the garden array
-      const userResponse = await axios.get('http://localhost:4000/api/users/profile', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      // The garden array already contains the full plant objects
-      const gardenPlants = userResponse.data.garden;
-      console.log('Garden plants:', gardenPlants);
-
-      // Set the plants directly from the garden array
-      setPlants(gardenPlants);
-      setError(null);
-    } catch (err) {
-      console.error('Error fetching plants:', err);
-      setError(err.response?.data?.message || 'Error fetching plants');
-      if (err.response?.status === 401) {
-        navigate('/login');
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleDelete = async (plant) => {
     try {
@@ -95,7 +62,6 @@ function Plants() {
       }
 
       if (plant.quantity > 1) {
-        // If quantity > 1, decrease quantity by 1
         await axios.put(`http://localhost:4000/api/plants/${plant._id}`, 
           { quantity: plant.quantity - 1 },
           {
@@ -105,7 +71,6 @@ function Plants() {
           }
         );
       } else {
-        // If quantity is 1, remove the plant
         await axios.delete(`http://localhost:4000/api/plants/${plant._id}`, {
           headers: {
             'Authorization': `Bearer ${token}`
@@ -113,18 +78,16 @@ function Plants() {
         });
       }
 
-      // Refresh plants after deletion
-      fetchPlants();
+      await refetch();
       setDeleteModal(null);
     } catch (err) {
       console.error('Error deleting plant:', err);
-      setError(err.response?.data?.message || 'Error deleting plant');
+      setError('Unable to delete plant. Please try again.');
+      if (err.response?.status === 401) {
+        navigate('/login');
+      }
     }
   };
-
-  useEffect(() => {
-    fetchPlants();
-  }, []);
 
   if (loading) {
     return (
@@ -134,11 +97,11 @@ function Plants() {
     );
   }
 
-  if (error) {
+  if (profileError) {
     return (
       <div className="min-h-screen bg-[#f5f1ec] flex items-center justify-center">
         <div className="bg-[#a65d57]/10 border border-[#a65d57] rounded-lg p-4">
-          <p className="text-[#a65d57]">{error}</p>
+          <p className="text-[#a65d57]">{profileError}</p>
         </div>
       </div>
     );
@@ -160,7 +123,7 @@ function Plants() {
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {plants.map((plant) => (
+          {userData.garden.map((plant) => (
             <motion.div
               key={plant._id}
               initial={{ opacity: 0, y: 20 }}
@@ -245,7 +208,7 @@ function Plants() {
           )}
         </AnimatePresence>
 
-        {plants.length === 0 && (
+        {userData.garden.length === 0 && (
           <div className="text-center mt-12">
             <p className="text-[#8c7355] text-lg">No plants in your garden yet.</p>
             <a 

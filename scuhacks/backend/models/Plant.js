@@ -2,10 +2,12 @@ import mongoose from 'mongoose';
 
 const plantSchema = new mongoose.Schema({
   name: {
-    type: String
+    type: String,
+    index: true // Add index for name searches
   },
   category: {
-    type: String
+    type: String,
+    index: true // Add index for category filtering
   },
   description: {
     type: String,
@@ -15,10 +17,12 @@ const plantSchema = new mongoose.Schema({
     type: Number,
     required: true,
     min: 1,
-    default: 1
+    default: 1,
+    index: true // Add index for quantity queries
   },
   co2Reduced: {
-    type: Number
+    type: Number,
+    index: true // Add index for CO2 calculations
   },
   image: {
     data: Buffer,
@@ -26,9 +30,14 @@ const plantSchema = new mongoose.Schema({
   },
   plantedDate: {
     type: Date,
-    default: Date.now
+    default: Date.now,
+    index: true // Add index for date-based queries
   }
 });
+
+// Add compound index for common query patterns
+plantSchema.index({ category: 1, co2Reduced: -1 });
+plantSchema.index({ plantedDate: -1, quantity: -1 });
 
 const Plant = mongoose.model('Plant', plantSchema);
 
