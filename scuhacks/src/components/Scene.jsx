@@ -88,8 +88,8 @@ export function Scene() {
     },
     {
       path: '/src/assets/plants/flower.glb',
-      scale: 0.3,
-      yOffset: 0
+      scale: 1,
+      yOffset: 1
     },
     {
       path: '/src/assets/plants/fern.glb',
@@ -99,22 +99,22 @@ export function Scene() {
     {
       path: '/src/assets/plants/mushroom.glb',
       scale: 0.08,
-      yOffset: 0
+      yOffset: 0.4
     },
     {
       path: '/src/assets/plants/flower1.glb',
-      scale: 0.9,
-      yOffset: 1
+      scale: 0.2,
+      yOffset: .2
     },
     {
       path: '/src/assets/plants/pinetree.glb',
-      scale: 2.5,
-      yOffset: 4.4
+      scale: 3.5,
+      yOffset: 6
     },
     {
       path: '/src/assets/plants/roundtree.glb',
-      scale: 2.5,
-      yOffset: 4.25
+      scale: 4.5,
+      yOffset: 6
     },
     {
       path: '/src/assets/plants/flower2.glb',
