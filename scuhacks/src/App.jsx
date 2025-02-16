@@ -9,7 +9,7 @@ import Plants from './pages/Plants';
 import Upload from './pages/Upload';
 import SignIn from './pages/SignIn';
 import SignUp from './pages/SignUp';
-import Account from './pages/Account.jsx';
+import Account from './pages/Account';
 
 // Mock data for statistics (replace with real data later)
 const plantStats = {
