@@ -137,7 +137,7 @@ function Upload() {
       window.location.href = '/garden';
     } catch (err) {
       console.error('Error:', err);
-      setError(err.response?.data?.message || 'Error uploading plant');
+      setError('Error uploading plant');
     } finally {
       setIsLoading(false);
     }

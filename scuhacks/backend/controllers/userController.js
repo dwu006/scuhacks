@@ -80,7 +80,8 @@ export const getUserProfile = async (req, res) => {
         _id: user._id,
         name: user.name,
         email: user.email,
-        garden: user.garden
+        garden: user.garden,
+        createdAt: user.createdAt
       });
     } else {
       res.status(404).json({ message: 'User not found' });

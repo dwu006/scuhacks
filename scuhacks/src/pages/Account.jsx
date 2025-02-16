@@ -9,7 +9,7 @@ function Account() {
     email: '',
     joinDate: '',
     totalPlants: 0,
-    totalCO2Offset: '0kg'
+    totalCO2Offset: '0g'
   });
 
   const [isEditing, setIsEditing] = useState(false);
@@ -34,25 +34,32 @@ function Account() {
         }
       });
 
+      console.log('Full API response:', response.data);
+
       const { name, email, createdAt, garden } = response.data;
       const totalCO2 = garden.reduce((total, plant) => total + (plant.co2Reduced || 0), 0);
 
-      // Format date as Month Year
-      const date = new Date(createdAt);
+      // Default to current date if createdAt is not available
+      const date = createdAt ? new Date(createdAt) : new Date();
       const formattedDate = date.toLocaleDateString('en-US', { 
         month: 'long',
         year: 'numeric'
       });
+
+      console.log('Original date:', createdAt);
+      console.log('Parsed date:', date);
+      console.log('Formatted date:', formattedDate);
 
       setUserData({
         name,
         email,
         joinDate: formattedDate,
         totalPlants: garden.length,
-        totalCO2Offset: `${totalCO2.toFixed(1)}g`
+        totalCO2Offset: `${totalCO2}g`
       });
     } catch (err) {
       console.error('Error fetching user data:', err);
+      setError(err.response?.data?.message || 'Error fetching user data');
       if (err.response?.status === 401) {
         navigate('/login');
       }
@@ -158,7 +165,7 @@ function Account() {
                   )}
                 </div>
                 <div>
-                  <label className="block text-sm text-[#8c7355] mb-1">Member Since</label>
+                  <label className="block text-sm text-[#8c7355] mb-1">Planting Since</label>
                   <p className="text-lg text-[#2d2417]">{userData.joinDate}</p>
                 </div>
               </div>

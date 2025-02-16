@@ -139,7 +139,7 @@ export function Scene() {
 
   // Preload all models
   plantModels.forEach(model => useGLTF.preload(model.path));
-  useGLTF.preload('/src/assets/dirt/Fertile soil.glb');
+  useGLTF.preload('/src/assets/dirt/Fertile Soil.glb');
 
   return (
     <>
@@ -191,5 +191,5 @@ useGLTF.preload([
   '/src/assets/plants/Pine Tree.glb',
   '/src/assets/plants/Tree-2.glb',
   '/src/assets/plants/tulip 3.glb',
-  '/src/assets/dirt/Fertile soil.glb'
+  '/src/assets/dirt/Fertile Soil.glb'
 ]);
