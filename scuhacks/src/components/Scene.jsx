@@ -69,7 +69,14 @@ export function Scene() {
 
   return (
     <>
-      <OrbitControls />
+      <OrbitControls 
+        minPolarAngle={0} 
+        maxPolarAngle={Math.PI / 2.1} 
+        enableZoom={true}
+        enablePan={true}
+        minDistance={5}
+        maxDistance={50}
+      />
       <ambientLight intensity={0.5} />
       <pointLight position={[10, 10, 10]} />
       <Grid
