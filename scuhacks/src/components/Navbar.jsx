@@ -19,6 +19,7 @@ function Navbar() {
         <ul className="flex space-x-6">
           <li><Link to="/garden" className="hover:text-gray-300">Garden</Link></li>
           <li><Link to="/plants" className="hover:text-gray-300">Plants</Link></li>
+          <li><Link to="/education" className="hover:text-gray-300">Education</Link></li>
           <li><Link to="/upload" className="hover:text-gray-300">Upload Picture</Link></li>
         </ul>
         <div className="flex items-center space-x-2 ml-6">

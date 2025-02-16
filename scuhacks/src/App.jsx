@@ -11,6 +11,7 @@ import SignIn from './pages/SignIn';
 import SignUp from './pages/SignUp';
 import Account from './pages/Account';
 import ProtectedRoute from './components/ProtectedRoute';
+import Education from './pages/Education';
 
 // Mock data for statistics (replace with real data later)
 const plantStats = {
@@ -311,6 +312,12 @@ function App() {
         <NavbarWrapper />
         <Routes>
           <Route path="/signin" element={<SignIn />} />
+          <Route path="/" element={<Login onGuestLogin={setIsGuest} />} />
+          <Route path="/garden" element={<Garden />} />
+          <Route path="/plants" element={<Plants />} />
+          <Route path="/upload" element={<Upload />} />
+          <Route path="/account" element={<Account />} />
+          <Route path="/education" element={<Education />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/" element={<Navigate to="/garden" />} />
           
