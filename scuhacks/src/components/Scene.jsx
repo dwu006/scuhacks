@@ -1,5 +1,6 @@
-import { useRef } from 'react';
-import { Grid, OrbitControls, useGLTF } from '@react-three/drei';
+import { useRef, useEffect } from 'react';
+import { Grid, OrbitControls, useGLTF, PerspectiveCamera } from '@react-three/drei';
+import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 
 // Plant component with loading and error handling
@@ -17,6 +18,25 @@ function Plant({ position, modelPath, scale = 1, rotation = 0 }) {
 }
 
 export function Scene() {
+  const sceneRef = useRef();
+  const controlsRef = useRef();
+
+  // Rotate scene
+  useFrame((state, delta) => {
+    if (sceneRef.current) {
+      sceneRef.current.rotation.y += delta * 0.1; // Adjust speed by changing multiplier
+    }
+  });
+
+  // Set initial camera position
+  useEffect(() => {
+    if (controlsRef.current) {
+      controlsRef.current.object.position.set(15, 15, 15);
+      controlsRef.current.target.set(0, 0, 0);
+      controlsRef.current.update();
+    }
+  }, []);
+
   // Define all available plant models
   const plantModels = [
     {
@@ -81,6 +101,7 @@ export function Scene() {
   return (
     <>
       <OrbitControls
+        ref={controlsRef}
         minPolarAngle={0}
         maxPolarAngle={Math.PI / 2.1}
         enableZoom={true}
@@ -89,35 +110,38 @@ export function Scene() {
         maxDistance={50}
       />
 
-      {/* Lighting */}
-      <ambientLight intensity={0.5} />
-      <pointLight position={[10, 10, 10]} intensity={0.8} />
-      <directionalLight position={[-5, 5, -5]} intensity={0.5} />
-      <hemisphereLight intensity={0.3} />
+      {/* Scene container for rotation */}
+      <group ref={sceneRef}>
+        {/* Lighting */}
+        <ambientLight intensity={0.5} />
+        <pointLight position={[10, 10, 10]} intensity={0.8} />
+        <directionalLight position={[-5, 5, -5]} intensity={0.5} />
+        <hemisphereLight intensity={0.3} />
 
-      {/* Ground grid */}
-      <Grid
-        renderOrder={-1}
-        position={[0, 0, 0]}
-        infiniteGrid
-        cellSize={1}
-        cellThickness={0.5}
-        sectionSize={3}
-        sectionThickness={1}
-        sectionColor={[0.5, 0.5, 0.5]}
-        fadeDistance={50}
-      />
-
-      {/* Plants */}
-      {plants.map((plant, index) => (
-        <Plant
-          key={index}
-          position={plant.position}
-          modelPath={plant.path}
-          scale={plant.scale}
-          rotation={plant.rotation}
+        {/* Ground grid */}
+        <Grid
+          renderOrder={-1}
+          position={[0, 0, 0]}
+          infiniteGrid
+          cellSize={1}
+          cellThickness={0.5}
+          sectionSize={3}
+          sectionThickness={1}
+          sectionColor={[0.5, 0.5, 0.5]}
+          fadeDistance={50}
         />
-      ))}
+
+        {/* Plants */}
+        {plants.map((plant, index) => (
+          <Plant
+            key={index}
+            position={plant.position}
+            modelPath={plant.path}
+            scale={plant.scale}
+            rotation={plant.rotation}
+          />
+        ))}
+      </group>
     </>
   );
 }
