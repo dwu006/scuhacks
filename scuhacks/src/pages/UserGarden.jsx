@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import axios from "axios";
+import api from "../api/axios";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { OrbitControls, Sky } from "@react-three/drei";
 import { Plant, Ground } from "../components/Scene";
@@ -124,18 +124,12 @@ const UserGarden = () => {
   useEffect(() => {
     const fetchUserGarden = async () => {
       try {
-        const token = localStorage.getItem('token');
-        if (!token) {
-          setError('Please log in to view gardens');
+        if (!userId) {
+          setError('Invalid user ID');
           return;
         }
 
-        const response = await axios.get(`http://localhost:4000/api/users/${userId}`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-
+        const response = await api.get(`/api/users/${userId}`);
         const { name, garden } = response.data;
         setUserName(name || 'User');
         setGarden(garden || []);
