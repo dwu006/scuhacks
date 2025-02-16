@@ -219,7 +219,7 @@ function Login({ onGuestLogin }) {
     <div className="min-h-screen bg-black flex items-center justify-center px-4">
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
-          <h2 className="mt-6 text-3xl font-bold text-white">Welcome to Virtual Plant</h2>
+          <h2 className="mt-6 text-3xl font-bold text-white">Welcome to  Plant Portal</h2>
           <p className="mt-2 text-sm text-gray-400">Track and manage your garden with AI</p>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
