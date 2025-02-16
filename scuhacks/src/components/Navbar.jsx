@@ -34,6 +34,8 @@ function Navbar() {
             <li><Link to="/plants" className="hover:text-[#7fa37f] transition-colors">Plants</Link></li>
             <li><Link to="/upload" className="hover:text-[#7fa37f] transition-colors">Upload</Link></li>
             <li><Link to="/education" className="hover:text-[#7fa37f] transition-colors">Education</Link></li>
+          <li><Link to="/community" className="hover:text-[#7fa37f] transition-colors">Community</Link></li>
+
           </ul>
           <div className="flex items-center space-x-2 ml-6">
             <Link to="/account" className="hover:text-[#7fa37f] transition-colors">

@@ -10,6 +10,8 @@ import Upload from './pages/Upload';
 import SignIn from './pages/SignIn';
 import SignUp from './pages/SignUp';
 import Account from './pages/Account';
+import CommunityPage from './pages/Community'; // New Import
+import UserGarden from './pages/UserGarden'; // New Import
 import ProtectedRoute from './components/ProtectedRoute';
 import Education from './pages/Education';
 
@@ -315,9 +317,23 @@ function App() {
           <Route path="/signin" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/" element={<Navigate to="/garden" />} />
-          <Route path="/garden" element={<Garden />} />
           
           {/* Protected Routes */}
+          <Route path="/garden" element={
+            <ProtectedRoute>
+              <Garden />
+            </ProtectedRoute>
+          } />
+          <Route path="/community" element={
+            <ProtectedRoute>
+              <CommunityPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/garden/:userId" element={
+            <ProtectedRoute>
+              <UserGarden />
+            </ProtectedRoute>
+          } />
           <Route path="/plants" element={
             <ProtectedRoute>
               <Plants />

@@ -134,3 +134,13 @@ export const logoutUser = async (req, res) => {
     res.status(500).json({ message: 'Error logging out' });
   }
 };
+
+export const getAllUsersWithGardens = async (req, res) => {
+  try {
+    const users = await User.find() 
+
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
