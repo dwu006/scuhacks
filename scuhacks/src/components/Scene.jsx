@@ -2,7 +2,7 @@ import { useRef } from 'react';
 import { Grid, OrbitControls, useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 
-// Import all plant models
+// Plant component with loading and error handling
 function Plant({ position, modelPath, scale = 1, rotation = 0 }) {
   const { scene } = useGLTF(modelPath);
 
@@ -16,70 +16,67 @@ function Plant({ position, modelPath, scale = 1, rotation = 0 }) {
   );
 }
 
-function generatePlants(totalPlants, models, minDistance = 2) {
-  const plants = [];
-  const bounds = 12;
-  const maxAttempts = 100;
-
-  while (plants.length < totalPlants) {
-    let attempts = 0;
-    let validPosition = false;
-    let x, z;
-
-    while (attempts < maxAttempts && !validPosition) {
-      // Generate position using polar coordinates for better distribution
-      const angle = Math.random() * Math.PI * 2;
-      const radius = Math.sqrt(Math.random()) * bounds;
-      x = Math.cos(angle) * radius;
-      z = Math.sin(angle) * radius;
-
-      // Check if this position is too close to any existing plant
-      validPosition = !plants.some(plant => {
-        const dx = plant.position[0] - x;
-        const dz = plant.position[2] - z;
-        return Math.sqrt(dx * dx + dz * dz) < minDistance;
-      });
-
-      attempts++;
-    }
-
-    if (validPosition) {
-      // Round position to nearest 0.5 for grid alignment
-      x = Math.round(x * 2) / 2;
-      z = Math.round(z * 2) / 2;
-
-      plants.push({
-        position: [x, 0, z],
-        modelPath: models[Math.floor(Math.random() * models.length)], // Randomly select a model (allows repeats)
-        rotation: Math.random() * Math.PI * 2,
-        scale: 0.4 + Math.random() * 0.2
-      });
-    } else {
-      // If we couldn't find a valid position, reduce the minimum distance
-      minDistance *= 0.9;
-    }
-  }
-
-  return plants;
-}
-
 export function Scene() {
+  // Define all available plant models
   const plantModels = [
-    '/src/assets/plants/Bush.glb',
-    '/src/assets/plants/Desert marigold.glb',
-    '/src/assets/plants/Fern.glb',
-    '/src/assets/plants/Mushroom.glb',
-    '/src/assets/plants/Pastel Plume Flowers.glb',
-    '/src/assets/plants/Pine Tree.glb',
-    '/src/assets/plants/Tree-2.glb',
-    '/src/assets/plants/tulip 3.glb'
+    {
+      path: '/src/assets/plants/Bush.glb',
+      scale: 15.0,
+      yOffset: 1.0
+    },
+    {
+      path: '/src/assets/plants/Desert marigold.glb',
+      scale: 0.3,
+      yOffset: 0
+    },
+    {
+      path: '/src/assets/plants/Fern.glb',
+      scale: 0.3,
+      yOffset: 0.7
+    },
+    {
+      path: '/src/assets/plants/Mushroom.glb',
+      scale: 0.08,
+      yOffset: 0
+    },
+    {
+      path: '/src/assets/plants/Pastel Plume Flowers.glb',
+      scale: 0.9,
+      yOffset: 1
+    },
+    {
+      path: '/src/assets/plants/Pine Tree.glb',
+      scale: 2.5,
+      yOffset: 4.4
+    },
+    {
+      path: '/src/assets/plants/Tree-2.glb',
+      scale: 2.5,
+      yOffset: 4.25
+    },
+    {
+      path: '/src/assets/plants/tulip 3.glb',
+      scale: 1.4,
+      yOffset: 0.85
+    }
   ];
 
-  const numPlants = 20;
-  const plants = generatePlants(numPlants, plantModels);
+  // Calculate positions in a circle
+  const radius = 8;
+  const plants = plantModels.map((model, index) => {
+    const angle = (index / plantModels.length) * Math.PI * 2;
+    const x = Math.cos(angle) * radius;
+    const z = Math.sin(angle) * radius;
+
+    return {
+      ...model,
+      position: [x, model.yOffset, z],
+      rotation: -angle + Math.PI // Make plants face outward
+    };
+  });
 
   // Preload all models
-  plantModels.forEach(path => useGLTF.preload(path));
+  plantModels.forEach(model => useGLTF.preload(model.path));
 
   return (
     <>
@@ -91,10 +88,14 @@ export function Scene() {
         minDistance={5}
         maxDistance={50}
       />
-      <ambientLight intensity={0.5} />
-      <pointLight position={[10, 10, 10]} />
-      <directionalLight position={[-5, 5, -5]} intensity={0.5} />
 
+      {/* Lighting */}
+      <ambientLight intensity={0.5} />
+      <pointLight position={[10, 10, 10]} intensity={0.8} />
+      <directionalLight position={[-5, 5, -5]} intensity={0.5} />
+      <hemisphereLight intensity={0.3} />
+
+      {/* Ground grid */}
       <Grid
         renderOrder={-1}
         position={[0, 0, 0]}
@@ -107,11 +108,12 @@ export function Scene() {
         fadeDistance={50}
       />
 
+      {/* Plants */}
       {plants.map((plant, index) => (
         <Plant
           key={index}
           position={plant.position}
-          modelPath={plant.modelPath}
+          modelPath={plant.path}
           scale={plant.scale}
           rotation={plant.rotation}
         />
@@ -120,7 +122,7 @@ export function Scene() {
   );
 }
 
-// Cleanup function to prevent memory leaks
+// Preload all models to prevent loading flicker
 useGLTF.preload([
   '/src/assets/plants/Bush.glb',
   '/src/assets/plants/Desert marigold.glb',
